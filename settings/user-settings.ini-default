@@ -14,7 +14,7 @@
 ;meshmap will now use SQLite3 as default
 ;change SQL_TYPE to "mysql" to change to a mariaDB/MySQL DB server
 ;only sqlite3 and mysql/mariadb are supported, sorry
-SQL_TYPE = "sqlite"
+SQL_TYPE = "mysql"
 
 ;;SQL username, password, database name, table names.
 ;ONLY NEED TO CHANGE THESE IF YOU ARE USING A MYSQL SERVER
