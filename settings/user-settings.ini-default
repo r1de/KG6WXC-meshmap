@@ -178,6 +178,8 @@ errorRefused_expire_interval = "90"
 meshServerHostName = ""
 inetServerHostname = ""
 
+AREDN_VERSION_CHECK_URL = "http://downloads.arednmesh.org/afs/www/config.js"
+
 ;;Values below control how the map is displayed in map_display.php
 ;--------------------------------------------------------------
 ;Map size

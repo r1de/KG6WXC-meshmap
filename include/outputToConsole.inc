@@ -78,8 +78,16 @@ function outputToConsole($results) {
 			if($results['loadavg'] != "Not Available") {
 				$ldavgs = unserialize($results['loadavg']);
 				$ld1 = $ldavgs[0];
-				$ld5 = $ldavgs[1];
-				$ld15 = $ldavgs[2];
+				if(isset($ldavgs[1])) { 
+					$ld5 = $ldavgs[1];
+				}else {
+					$ld5 = "na";
+				}
+				if(isset($ldavgs[2])) {
+					$ld15 = $ldavgs[2];
+				}else {
+					$ld15 = "na";
+				}
 				if($ld1 > 1) {
 					$ld1 = wxc_addColor($ld1, "red");
 				}elseif ($ld1 < 1 && $ld1 > 0.5) {

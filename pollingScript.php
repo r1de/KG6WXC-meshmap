@@ -234,6 +234,14 @@ if($autoCheckArednVersions) {
 	if($TEST_MODE) {
 		echo "Checking Internet for the latest AREDN version numbers... ";
 	}
+	$versions = get_current_aredn_versions();
+	if($TEST_MODE) {
+		echo wxc_addColor("Done!", "greenBold") . "\n(Stable: " . $versions['AREDN_STABLE_VERSION'] . " Nightly: " . $versions['AREDN_NIGHTLY_VERSION'] . ")\n\n";
+	}
+/*
+	var_dump($versions);
+	exit();
+	
 	//check latest AREDN versions and set the old variable from $USER_SETTINGS
 	$GLOBALS['USER_SETTINGS']['current_stable_fw_version'] = check_aredn_stable_version();
 	$NIGHTLY_INFO = check_aredn_nightly_build_number();
@@ -242,28 +250,37 @@ if($autoCheckArednVersions) {
 	if($TEST_MODE) {
 		echo wxc_addColor("Done!", "greenBold") . "\n(Stable: " . $USER_SETTINGS['current_stable_fw_version'] . " Nightly: " . $NIGHTLY_INFO['number'] . ")\n\n";
 	}
+*/
 	if($USE_SQL) {
+		$sql = "REPLACE INTO aredn_info (current_stable_version, current_nightly_version) VALUES('" .
+				$versions['AREDN_STABLE_VERSION'] . "', '" .
+				$versions['AREDN_NIGHTLY_VERSION'] . "')";
+//		$sql = "REPLACE INTO aredn_info (id, current_version) VALUES(" .
+//				"AREDN_STABLE_VERSION, " . $versions['AREDN_STABLE_VERSION'] . ")";
+		
 		if($USER_SETTINGS['SQL_TYPE'] == "sqlite") {
-			$sql = "UPDATE aredn_info SET ('stable_version', 'nightly_build_num', 'nightly_build_date') ('" .
-					$USER_SETTINGS['current_stable_fw_version'] . "', '" .
-					$NIGHTLY_INFO['number'] . "', '" .
-					$NIGHTLY_INFO['date'] . "')";
+			$dbHandle = new SQLite3($INCLUDE_DIR . "/sqlite3_db/mesh-map.sqlite");
 			$dbHandle->exec($sql);
-		}else {
+			$dbHandle->close();
+		}elseif($USER_SETTINGS['SQL_TYPE'] == "mysql") {
 			//TODO: mysql
+			$sql_connection = wxc_connectToMySQL();
+			wxc_putMySql($sql_connection, $sql);
+			mysqli_close($sql_connection);
 		}
 	}
+
 	//also save to a file for parallel script
 	$version_file = fopen($INCLUDE_DIR . "/logs/latest_versions.txt", "w");
-	fwrite($version_file, $GLOBALS['USER_SETTINGS']['current_stable_fw_version'] . "\n");
-	fwrite($version_file, $NIGHTLY_INFO['number'] . "\n");
-	fwrite($version_file, $NIGHTLY_INFO['date'] . "\n");
+	fwrite($version_file, $versions['AREDN_STABLE_VERSION'] . "\n");
+	fwrite($version_file, $versions['AREDN_NIGHTLY_VERSION'] . "\n");
 	fclose($version_file);
+
+	
 }else {
 	//TODO: don't autocheck, use the value from the config file from stable FW version.
 }
 
-//exit();
 
 $mysql_db = "";
 $sqlite3_db = "";
@@ -287,6 +304,7 @@ if($START_POLLING) {
 			foreach($chunk as $ip => $info) {
 				$ipExtraInfo = escapeshellarg(serialize($info));
 				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " " . $ipExtraInfo . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
+//				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " " . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
 				$nodeCount++;
 			}
 			while(count($pProcessingPIDS) > $numParallelProcesses) {
@@ -407,7 +425,7 @@ if($START_POLLING) {
 
 //create the topology table
 if($TEST_MODE) {
-	echo "Building Topology table: ";
+	echo "Building Topology information: ";
 }
 $link_count = 0;
 $sql_connection = wxc_connectToMySQL();
@@ -416,6 +434,7 @@ $query = wxc_getMysqlFetchAll("select node from node_info");
 
 wxc_putMySql($sql_connection, "truncate topology");
 foreach($query as $v) {
+	$node = $v['node'];
 
 	$query = "SELECT node, lat, lon, link_info from node_info where node like '" . $v['node'] . "'";
 	$q_results = wxc_getMySql($query);
@@ -429,8 +448,18 @@ foreach($query as $v) {
 
 		if(isset($q_results['lat']) && isset($q_results['lon']) && isset($link_coords['lat']) && isset($link_coords['lon'])) {
 			if(!empty($q_results['lat']) && !empty($q_results['lon']) && !empty($link_coords['lat']) && !empty($link_coords['lon'])) {
-				$dist_bear = wxc_getDistanceAndBearing($q_results['lat'], $q_results['lon'], $link_coords['lat'], $link_coords['lon']);
+				$links[$k]['linkLat'] = $link_coords['lat'];
+				$links[$k]['linkLon'] = $link_coords['lon'];
 
+				if(isset($links[$k]['linkType'])) {
+					if($links[$k]['linkType'] == "RF") {
+						$dist_bear = wxc_getDistanceAndBearing($q_results['lat'], $q_results['lon'], $link_coords['lat'], $link_coords['lon']);
+						$links[$k]['distance'] = $dist_bear['distance'];
+						$links[$k]['bearing'] = $dist_bear['bearing'];
+					}
+				}
+
+/*				
 				if(isset($links[$k]['hostname'])) {
 					$link_name = $links[$k]['hostname'];
 				}
@@ -449,18 +478,21 @@ foreach($query as $v) {
 				//echo "\n\n" . $query . "\n\n";
 				//exit();
 				
-				$link_count++;
 				wxc_putMySql($sql_connection, $query);
-
+*/
+				$link_count++;
 				unset($v);
 				if($TEST_MODE) {
-					printf("\033[26G\033'({$link_count})... ", "", "");
+					printf("\033[32G\033'({$link_count})... ", "", "");
+//					printf("\033[26G\033'({$link_count})... ", "", "");
 					//printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
 				}
 
 			}
 		}
 	}
+	$update_link_info = "update node_info set link_info = " . escapeshellarg(serialize($links)) . " where node = '" . $node . "'";
+	wxc_putMySql($sql_connection, $update_link_info);
 }
 if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold");

@@ -1,4 +1,54 @@
 <?php
+function get_current_aredn_versions() {
+	$versions['AREDN_STABLE_VERSION'] = "";
+	$versions['AREDN_NIGHTLY_VERSION'] = "";
+	if(function_exists('curl_version')) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+		//check aredn
+		curl_setopt($ch, CURLOPT_URL, $GLOBALS['USER_SETTINGS']['AREDN_VERSION_CHECK_URL']);
+		$config_info = curl_exec($ch);
+
+		preg_match('/versions:.*$/m', $config_info, $result);
+		$result = rtrim($result[0], ",");
+		$result = str_replace("versions: ", "", $result);
+		$result = str_replace("'", "\"", $result);
+
+		$json = json_decode($result,true);
+		unset($result);
+		unset($ch);
+
+		$stable_versions = [];
+		$nightly_versions = [];
+		foreach($json as $k => $v) {
+			if(preg_match('/^\d\.\d\d\.\d+.\d+$/', $k)) {
+				$stable_versions[] = $k;
+			}else {
+				$nightly_versions[] = $k;
+			}
+		}
+		unset($json);
+
+		foreach($stable_versions as $v) {
+			if(version_compare($v, $versions['AREDN_STABLE_VERSION'], '>')) {
+				$versions['AREDN_STABLE_VERSION'] = $v;
+			}
+		}
+		foreach($nightly_versions as $v) {
+			if(version_compare($v, $versions['AREDN_NIGHTLY_VERSION'], '>')) {
+				$versions['AREDN_NIGHTLY_VERSION'] = $v;
+			}
+		}
+		unset($stable_versions);
+		unset($nightly_versions);
+
+		return $versions;
+	}else {
+		exit("Please Install the php-curl module to automatically check the internet for current AREDN versions");
+	}
+}
 function check_aredn_stable_version() {
 	if(function_exists('curl_version')) {
 		$ch = curl_init();
