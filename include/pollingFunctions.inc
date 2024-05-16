@@ -163,6 +163,9 @@ function parseSysinfoJson($jsonString) {
 										$results['wlan_ip'] = $value2['ip'];
 										$results['eth3975'] = 1;
 										break;
+									case "br-nomesh":
+										$results['wlan_ip'] = $value2['ip'];
+										break;
 								}
 							}
 						}else { //<- interfaces array keys are *not* numeric (it's a very very old version of the json file)
