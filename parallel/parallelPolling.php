@@ -58,6 +58,16 @@ if(count($argv) < 2) {
 		$deviceInfo[$ip] = unserialize($argv[2]);
 	}
 }
+
+//get devices link info from DB and not from a command line arg
+$sql_connection = wxc_connectToMySQL();
+$deviceLinkInfo = wxc_getMySql("SELECT link_info, hopsAway from " . $GLOBALS['USER_SETTINGS']['sql_db_tbl'] . " where wlan_ip = '" . $ip . "'");
+//$deviceInfo[$ip] = mysqli_query($sql_connection, "SELECT link_info from " . $GLOBALS['USER_SETTINGS']['sql_db_tbl'] . " where wlan_ip = '" . $ip . "'");
+mysqli_close($sql_connection);
+
+$deviceInfo[$ip]['link_info'] = unserialize($deviceLinkInfo['link_info']);
+$deviceInfo[$ip]['hopsAway'] = $deviceLinkInfo['hopsAway'];
+
 //poll the node
 $sysinfoJson = @file_get_contents("http://" . $ip . ":8080/cgi-bin/sysinfo.json?link_info=1&services_local=1");
 

@@ -293,7 +293,7 @@ if($START_POLLING) {
 	$donePolling = 0;
 	if($USER_SETTINGS['node_polling_parallel']) {
 		if($TEST_MODE) {
-			echo "Polling Progress: ";
+			echo "Polling Progress (" . $USER_SETTINGS['numParallelThreads'] . "x): ";
 		}
 		$numParallelProcesses = $USER_SETTINGS['numParallelThreads'];
 		$pProcessingChunks = array_chunk($nodeDevices, 1, true);
@@ -303,7 +303,8 @@ if($START_POLLING) {
 			$chunk = $pProcessingChunks[$i];
 			foreach($chunk as $ip => $info) {
 				$ipExtraInfo = escapeshellarg(serialize($info));
-				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " " . $ipExtraInfo . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
+				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
+//				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " " . $ipExtraInfo . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
 //				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " " . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
 				$nodeCount++;
 			}
@@ -316,7 +317,7 @@ if($START_POLLING) {
 					$numLeft = 100 - $percent;
 					if($TEST_MODE) {
 //						printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
-						printf("\033[19G\033'$percent%% ($donePolling/$TotalToPoll)... ", "", "");
+						printf("\033[26G\033'$percent%% ($donePolling/$TotalToPoll)... ", "", "");
 					}
 					//echo $progress;
 					}
@@ -334,7 +335,7 @@ if($START_POLLING) {
 					$numLeft = 100 - $percent;
 					if($TEST_MODE) {
 //						printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
-						printf("\033[19G\033'$percent%% ($donePolling/$TotalToPoll)... ", "", "");
+						printf("\033[26G\033'$percent%% ($donePolling/$TotalToPoll)... ", "", "");
 					}
 				}
 			}
@@ -432,7 +433,7 @@ $sql_connection = wxc_connectToMySQL();
 
 $query = wxc_getMysqlFetchAll("select node from node_info");
 
-wxc_putMySql($sql_connection, "truncate topology");
+//wxc_putMySql($sql_connection, "truncate topology");
 foreach($query as $v) {
 	$node = $v['node'];
 
