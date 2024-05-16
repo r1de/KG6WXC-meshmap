@@ -140,7 +140,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 	unset($sysinfoJson);
 	fclose($err_log);
 	//get the now fixed node info and parse it all out further
-	$deviceInfo = parseSysinfoJson($deviceInfo[$ip]);
+	$deviceInfo = parseSysinfoJson($deviceInfo[$ip], $ip);
 	
 	outputToConsole($deviceInfo); //<-**outputs to log file now**
 	

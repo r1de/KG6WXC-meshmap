@@ -58,7 +58,7 @@ function wxc_checkBand ($channel, $board_id = null) {
 	
 }
 
-function parseSysinfoJson($jsonString) {
+function parseSysinfoJson($jsonString, $ip) {
 	//declare empty return array
 	$results = array();
 
@@ -167,6 +167,8 @@ function parseSysinfoJson($jsonString) {
 										$results['wlan_ip'] = $value2['ip'];
 										break;
 								}
+							}else {
+								$results['wlan_ip'] = $ip;
 							}
 						}else { //<- interfaces array keys are *not* numeric (it's a very very old version of the json file)
 							if(isset($value2['ip']) && $value2['ip'] != "none") {
