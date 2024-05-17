@@ -14,6 +14,7 @@ function wxc_getDistanceAndBearing (float $node_lat, float $node_lon, float $lin
 	//it was changed this way to have it be more compatible with other versions of MySQL
 	
 	//Find the distance and bearing between the 2 nodes
+	$earthRadiusKM		= 6371;
 	$earthRadiusMiles	= 3959;
 	$distanceLatFrom 	= deg2rad($node_lat);
 	$distanceLonFrom 	= deg2rad($node_lon);
@@ -25,7 +26,7 @@ function wxc_getDistanceAndBearing (float $node_lat, float $node_lon, float $lin
 	
 	$angleBetweenTheTwoPoints = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) + cos($distanceLatFrom) * cos($distanceLatTo) * pow(sin($lonDelta / 2), 2)));
 	
-	$distance = $angleBetweenTheTwoPoints * $earthRadiusMiles;
+	$distance = $angleBetweenTheTwoPoints * $earthRadiusKM;
 	$distance = round($distance, 2);
 	//an sql expression for distance? (to make the SQL server do this!)
 	
