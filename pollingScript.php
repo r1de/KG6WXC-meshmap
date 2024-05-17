@@ -43,6 +43,7 @@ require $INCLUDE_DIR . "/include/outputToFile.inc";
 require $INCLUDE_DIR . "/include/checkArednVersions.inc";
 require $INCLUDE_DIR . "/include/sqliteStuff.inc";
 require $INCLUDE_DIR . "/include/calcDistanceAndBearing.inc";
+require $INCLUDE_DIR . "/include/createJS.inc";
 
 $USE_SQL = 1;
 $TEST_MODE = 0;
@@ -564,5 +565,19 @@ if ($TEST_MODE) {
 	
 	//display how long it took to poll all the nodes
 	echo "Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n";
+	
+	if($USER_SETTINGS['uploadToCloud']) {
+		echo "Uploading data file to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
+		$fileName = "map_data.js";
+		$fileToUpload = fopen($fileName, "w") or die("could not open file");
+		fwrite($fileToUpload, createJS());
+		fclose($fileToUpload);
+		//$data = createJSFile();
+		//var_dump($data);
+		//exit();
+		exec('cat ' .  $fileName . ' | ssh ' . $USER_SETTINGS['cloudServer'] . ' "cat > ' . $USER_SETTINGS['cloudServerDirectory'] . '/map_data.js"');
+		exec('rm map_data.js');
+		echo "Done!\n";
+	}
 }
 ?>
