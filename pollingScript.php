@@ -565,18 +565,26 @@ if ($TEST_MODE) {
 	
 	//display how long it took to poll all the nodes
 	echo "Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n";
-	
-	if($USER_SETTINGS['uploadToCloud']) {
-		echo "Uploading data file to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
-		$fileName = "map_data.js";
-		$fileToUpload = fopen($fileName, "w") or die("could not open file");
-		fwrite($fileToUpload, createJS());
-		fclose($fileToUpload);
-		//$data = createJSFile();
-		//var_dump($data);
-		//exit();
-		exec('cat ' .  $fileName . ' | ssh ' . $USER_SETTINGS['cloudServer'] . ' "cat > ' . $USER_SETTINGS['cloudServerDirectory'] . '/map_data.js"');
-		exec('rm map_data.js');
+}	
+if($USER_SETTINGS['uploadToCloud']) {
+	if($TEST_MODE) {
+		echo "Uploading map data file to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServerUser'] , '@' . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
+	}
+	$fileName = "map_data.js";
+	$fileToUpload = fopen($fileName, "w") or die("could not open file");
+	fwrite($fileToUpload, createJS());
+	fclose($fileToUpload);
+	//$data = createJSFile();
+	//var_dump($data);
+	//exit();
+	exec('cat ' .  $fileName . ' | /usr/bin/ssh -i /home/kg6wxc/.ssh/id_rsa ' . $USER_SETTINGS['cloudServerUser'] . '@' . $USER_SETTINGS['cloudServer'] . ' "cat > ' . $USER_SETTINGS['cloudServerDirectory'] . '/map_data.js"');
+	exec('rm map_data.js');
+	if($TEST_MODE) {
+		echo "Done!\n";
+		echo "Uploading report data file to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServerUser'] , '@' . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
+	}
+	exec('/usr/bin/php ./node_report_data.php | /usr/bin/ssh -i /home/kg6wxc/.ssh/id_rsa ' . $USER_SETTINGS['cloudServerUser'] . '@' . $USER_SETTINGS['cloudServer'] . ' "cat > ' . $USER_SETTINGS['cloudServerDirectory'] . '/node_report_data.json"');
+	if($TEST_MODE) {
 		echo "Done!\n";
 	}
 }
