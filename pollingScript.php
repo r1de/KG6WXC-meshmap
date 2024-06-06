@@ -12,7 +12,7 @@ if (PHP_SAPI !== 'cli') {
 $mtimeStart = microtime(true);
 
 /************************************
-* New polling script for meshmap apr 2021-2023 - kg6wxc
+* New polling script for meshmap apr 2021-2024 - kg6wxc
 * Original meshmap scripts are from 2016 and beyond.
 * 
 * Licensed under GPLv3 or later
@@ -44,6 +44,7 @@ require $INCLUDE_DIR . "/include/checkArednVersions.inc";
 require $INCLUDE_DIR . "/include/sqliteStuff.inc";
 require $INCLUDE_DIR . "/include/calcDistanceAndBearing.inc";
 require $INCLUDE_DIR . "/include/createJS.inc";
+require $INCLUDE_DIR . "/include/node_report_data.inc";
 
 $USE_SQL = 1;
 $TEST_MODE = 0;
@@ -99,6 +100,19 @@ $nodeCount = 0;
 $badCount = 0;
 $noArraySent = 0;
 
+//first grab the localnodes actual name
+if($TEST_MODE) {
+	echo "Polling " . $USER_SETTINGS['localnode'] . " for some info before starting... ";
+}
+$localInfo = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json");
+$localInfo = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $localInfo);
+$localInfo = json_decode($localInfo,true);
+$localNodeName = $localInfo['node'];
+unset($localInfo);
+if($TEST_MODE) {
+	echo wxc_addColor("Done!", "greenBold") . "\n";
+}
+
 if($TEST_MODE) { 
 	echo "Attempting to retrieve network topology from " . $USER_SETTINGS['localnode'] . "... ";
 }
@@ -128,17 +142,18 @@ if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold") . "\n";
 }
 
-//use the 'destinationIP' to build new array with the info for each device
-//using destinationIP will (hopefully) ensure a unique list of nodes on the network
+//use the 'lastHopIP' to build new array with the info for each device
+//using lastHopIP will ensure a unique list of nodes on the network
 //add in the "hopsAway" variable (this would be hops away from the localnode)
 if($TEST_MODE) {
 	echo "Building list of node IP addresses and some link info... ";
 }
 $nodeDevices = [];
 $MaxNumHops = 0;
+
 foreach($topoInfo as $link) {
-	$nodeDevices[$link['destinationIP']] = [];
-	$nodeDevices[$link['destinationIP']]['hopsAway'] = $link['hops'];
+	$nodeDevices[$link['lastHopIP']] = [];
+	$nodeDevices[$link['lastHopIP']]['hopsAway'] = $link['hops'];
 	if(intval($link['hops']) > $MaxNumHops) {
 		$MaxNumHops = intval($link['hops']);
 	}
@@ -148,8 +163,8 @@ unset($link);
 //build up the $nodeDevices array with info we need about each link
 foreach($nodeDevices as $ip => $node) {
 	foreach($topoInfo as $link) {
-		if($link['destinationIP'] == $ip) {
-			$nodeDevices[$ip]['link_info'][$link['lastHopIP']] = $link;
+		if($link['lastHopIP'] == $ip) {
+			$nodeDevices[$ip]['link_info'][$link['destinationIP']] = $link;
 		}
 	}
 	unset($link);
@@ -305,8 +320,6 @@ if($START_POLLING) {
 			foreach($chunk as $ip => $info) {
 				$ipExtraInfo = escapeshellarg(serialize($info));
 				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
-//				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " " . $ipExtraInfo . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
-//				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " " . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
 				$nodeCount++;
 			}
 			while(count($pProcessingPIDS) > $numParallelProcesses) {
@@ -317,7 +330,6 @@ if($START_POLLING) {
 					$percent = floor(($donePolling / $TotalToPoll) * 100);
 					$numLeft = 100 - $percent;
 					if($TEST_MODE) {
-//						printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
 						printf("\033[26G\033'$percent%% ($donePolling/$TotalToPoll)... ", "", "");
 					}
 					//echo $progress;
@@ -501,14 +513,14 @@ if($TEST_MODE) {
 	echo "\n\n";
 }
 
-//echo some stat's in test mode
-if ($TEST_MODE) {
-	//
-//	echo "Total to Start: " . $TotalToPoll . "\n";
+//get polling stats and echo in test mode
+$pollingInfo = [];
 
+$pollingInfo['nodeTotal'] = $nodeCount;
+if ($TEST_MODE) {
 	//total nodes found to try and poll
 	echo "Total Node Count: " . $nodeCount . "\n";
-	
+}
 	//nodes that returned garbage
 	$fCount = 0;
 	$f = $USER_SETTINGS['errFile'];
@@ -522,14 +534,22 @@ if ($TEST_MODE) {
 			$fCount++;
 		}
 	}
+
+$pollingInfo['garbageReturned'] = $fCount;
+if($TEST_MODE) {
 	echo "Garbage Returned: " . $fCount . "\n";
-	
+}
+$pollingInfo['highestHops'] = $MaxNumHops;
+
+if($TEST_MODE) {
 	echo "Highest Hops Away: " . $MaxNumHops . "\n";
-	
+}
 	//total nodes found minus ones that return garbage
 	$totalPolled = intval($nodeCount) - intval($fCount);
+$pollingInfo['totalPolled'] = $totalPolled;
+if($TEST_MODE) {
 	echo "Total Nodes polled: " . $totalPolled . "\n";
-	
+}
 	//total nodes POLLED that returned good data minus ones that have no location set
 //	if ($USE_SQL) {
 //		$noLocationQueryString = "select count(*) as 'count' from node_info where lat is NULL or lat = '' or lon is NULL or lon = ''";
@@ -552,40 +572,71 @@ if ($TEST_MODE) {
 		}
 	}
 	$mapTotal = intval($totalPolled) - intval($fCount);
+$pollingInfo['noLocation'] = $fCount;
+$pollingInfo['mappableNodes'] = $mapTotal;
+if($TEST_MODE) {
 	echo "Nodes with no location: " . $fCount . "\n";
-//	echo "Total that can be shown on map: " . intval($totalPolled) - intval($fCount) . "\n";
 	echo "Total that can be shown on map: " . $mapTotal . "\n";
-//	}
-	
+}
+$pollingInfo['mappableLinks'] = $link_count;
+if($TEST_MODE) {
 	echo "Links found that can be mapped: " . $link_count . "\n";
-	
+}
 	//total time taken to run the polling
 	$mtimeEnd = microtime(true);
 	$totalTime = $mtimeEnd-$mtimeStart;
-	
+$pollingInfo['pollingTimeSec'] = round($totalTime, 2);
+if($TEST_MODE) {
 	//display how long it took to poll all the nodes
-	echo "Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n";
-}	
+	echo "Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n\n";
+}
+$q = "REPLACE INTO map_info (";
+foreach($pollingInfo as $k => $v) {
+	$q .= $k . ", ";
+}
+$q .= "lastPollingRun) VALUES (";
+foreach($pollingInfo as $k => $v) {
+	$q .= $v . ", ";
+}
+$q .= "NOW())";
+wxc_putMySql($sql_connection, $q);
+
+$mapInfo = [];
+$mapInfo['localnode'] = $localNodeName;
+$mapInfo['mapTileServers'] = $USER_SETTINGS['mapTileServers'];
+$mapInfo['title'] = $USER_SETTINGS['pageTitle'];
+$mapInfo['attribution'] = $USER_SETTINGS['attribution'];
+$mapInfo['mapContact'] = $USER_SETTINGS['mapContact'];
+$mapInfo['webpageDataDir'] = "";
+
+$pollingInfo['lastPollingRun'] = gmdate("Y-m-d H:i:s");
+
+if($TEST_MODE) {
+	echo "Creating webpage data files in: ". $USER_SETTINGS['webpageDataDir'] . "... ";
+}
+$mapDataFileName = $USER_SETTINGS['webpageDataDir'] . "/map_data.js";
+$fh = fopen($mapDataFileName, "w") or die ("could not open file");
+fwrite($fh, createJS($pollingInfo, $mapInfo));
+fclose($fh);
+
+createNodeReportJSON($sql_connection, $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json");
+
+if($TEST_MODE) {
+	echo wxc_addColor("Done!", "greenBold");
+	echo "\n\n";
+}
+//upload a js and json file to another server via SSH
+//must be able to login via SSH key with no password for this to work.
 if($USER_SETTINGS['uploadToCloud']) {
 	if($TEST_MODE) {
-		echo "Uploading map data file to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServerUser'] , '@' . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
+		echo "Uploading map data files to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServerUser'] , '@' . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
 	}
-	$fileName = "map_data.js";
-	$fileToUpload = fopen($fileName, "w") or die("could not open file");
-	fwrite($fileToUpload, createJS());
-	fclose($fileToUpload);
-	//$data = createJSFile();
-	//var_dump($data);
-	//exit();
-	exec('cat ' .  $fileName . ' | /usr/bin/ssh -i /home/kg6wxc/.ssh/id_rsa ' . $USER_SETTINGS['cloudServerUser'] . '@' . $USER_SETTINGS['cloudServer'] . ' "cat > ' . $USER_SETTINGS['cloudServerDirectory'] . '/map_data.js"');
-	exec('rm map_data.js');
+	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/map_data.js");
+	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/node_report_data.json");
 	if($TEST_MODE) {
-		echo "Done!\n";
-		echo "Uploading report data file to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServerUser'] , '@' . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
+		echo wxc_addColor("Done!", "greenBold");
+		echo "\n\n";
 	}
-	exec('/usr/bin/php ./node_report_data.php | /usr/bin/ssh -i /home/kg6wxc/.ssh/id_rsa ' . $USER_SETTINGS['cloudServerUser'] . '@' . $USER_SETTINGS['cloudServer'] . ' "cat > ' . $USER_SETTINGS['cloudServerDirectory'] . '/node_report_data.json"');
-	if($TEST_MODE) {
-		echo "Done!\n";
-	}
+
 }
 ?>

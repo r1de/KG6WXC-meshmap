@@ -102,7 +102,7 @@ function parseSysinfoJson($jsonString, $ip) {
 		$results['freq'] = "None";
 //		$results['interfaces'] = "";
 		$results['link_info'] = "";
-		$results['hopsAway'] = 0;
+		$results['hopsAway'] = 999;
 		
 		$results['hopsAway'] = $jsonString['hopsAway'];
 		
