@@ -119,8 +119,22 @@ if($TEST_MODE) {
 //attempt to get network topology from AREDN API
 $allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
 if (empty($allMeshNodes)) {
-	if($TEST_MODE) { echo "\n"; }
-	exit(wxc_addColor("THERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'], "redBold")  . "\n\n");
+	if($TEST_MODE) {
+		wxc_addColor("\nTHERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'] . "\n", "redBold");
+		echo "Trying again... in 15sec\n";
+		sleep(15);
+		$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
+		if(empty($allMeshNodes)) {
+			exit("Failed\n");
+		}
+	}else {
+		echo "THERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'] . "\n";
+		echo "Trying again... in 15sec\n";
+		sleep(15);
+		$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
+		if(empty($allMeshNodes)) {
+			exit("Failed.\n");
+		}
 }
 
 //decode the json retrieved from localnode
@@ -456,57 +470,59 @@ foreach($query as $v) {
 		$links = unserialize($q_results['link_info']);
 	}
 
-	foreach($links as $k => $v){
-		$query = "SELECT lat, lon from node_info where wlan_ip = '" . $k  . "'";
-		$link_coords = wxc_getMySql($query);
-
-		if(isset($q_results['lat']) && isset($q_results['lon']) && isset($link_coords['lat']) && isset($link_coords['lon'])) {
-			if(!empty($q_results['lat']) && !empty($q_results['lon']) && !empty($link_coords['lat']) && !empty($link_coords['lon'])) {
-				$links[$k]['linkLat'] = $link_coords['lat'];
-				$links[$k]['linkLon'] = $link_coords['lon'];
-
-				if(isset($links[$k]['linkType'])) {
-					if($links[$k]['linkType'] == "RF") {
-						$dist_bear = wxc_getDistanceAndBearing($q_results['lat'], $q_results['lon'], $link_coords['lat'], $link_coords['lon']);
-						$links[$k]['distance'] = $dist_bear['distance'];
-						$links[$k]['bearing'] = $dist_bear['bearing'];
+	if(!is_null($links)) {
+		foreach($links as $k => $v){
+			$query = "SELECT lat, lon from node_info where wlan_ip = '" . $k  . "'";
+			$link_coords = wxc_getMySql($query);
+	
+			if(isset($q_results['lat']) && isset($q_results['lon']) && isset($link_coords['lat']) && isset($link_coords['lon'])) {
+				if(!empty($q_results['lat']) && !empty($q_results['lon']) && !empty($link_coords['lat']) && !empty($link_coords['lon'])) {
+					$links[$k]['linkLat'] = $link_coords['lat'];
+					$links[$k]['linkLon'] = $link_coords['lon'];
+	
+					if(isset($links[$k]['linkType'])) {
+						if($links[$k]['linkType'] == "RF") {
+							$dist_bear = wxc_getDistanceAndBearing($q_results['lat'], $q_results['lon'], $link_coords['lat'], $link_coords['lon']);
+							$links[$k]['distance'] = $dist_bear['distance'];
+							$links[$k]['bearing'] = $dist_bear['bearing'];
+						}
 					}
+	
+	/*				
+					if(isset($links[$k]['hostname'])) {
+						$link_name = $links[$k]['hostname'];
+					}
+	
+					$query = "insert into topology set node = '" . $q_results['node'] . "', nodelat = '" . $q_results['lat'] . "', nodelon = '" . $q_results['lon'] . "', ";
+					$query .= "linkto = '" . $link_name . "', linklat = '" . $link_coords['lat'] . "', linklon = '" . $link_coords['lon'] . "', ";
+					$query .= "distance = '" . $dist_bear['distance'] . "', bearing = '" . $dist_bear['bearing'] . "', ";
+					foreach ($links[$k] as $link => $info) {
+						$query .=  '`' . $link . '`' . " = '" . $info . "', ";
+						unset($info);
+					}
+					
+					$query = trim($query);
+					$query = substr($query, 0, -1);
+	
+					//echo "\n\n" . $query . "\n\n";
+					//exit();
+					
+					wxc_putMySql($sql_connection, $query);
+	*/
+					$link_count++;
+					unset($v);
+					if($TEST_MODE) {
+						printf("\033[32G\033'({$link_count})... ", "", "");
+	//					printf("\033[26G\033'({$link_count})... ", "", "");
+						//printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
+					}
+	
 				}
-
-/*				
-				if(isset($links[$k]['hostname'])) {
-					$link_name = $links[$k]['hostname'];
-				}
-
-				$query = "insert into topology set node = '" . $q_results['node'] . "', nodelat = '" . $q_results['lat'] . "', nodelon = '" . $q_results['lon'] . "', ";
-				$query .= "linkto = '" . $link_name . "', linklat = '" . $link_coords['lat'] . "', linklon = '" . $link_coords['lon'] . "', ";
-				$query .= "distance = '" . $dist_bear['distance'] . "', bearing = '" . $dist_bear['bearing'] . "', ";
-				foreach ($links[$k] as $link => $info) {
-					$query .=  '`' . $link . '`' . " = '" . $info . "', ";
-					unset($info);
-				}
-				
-				$query = trim($query);
-				$query = substr($query, 0, -1);
-
-				//echo "\n\n" . $query . "\n\n";
-				//exit();
-				
-				wxc_putMySql($sql_connection, $query);
-*/
-				$link_count++;
-				unset($v);
-				if($TEST_MODE) {
-					printf("\033[32G\033'({$link_count})... ", "", "");
-//					printf("\033[26G\033'({$link_count})... ", "", "");
-					//printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
-				}
-
 			}
 		}
+		$update_link_info = "update node_info set link_info = " . escapeshellarg(serialize($links)) . " where node = '" . $node . "'";
+		wxc_putMySql($sql_connection, $update_link_info);
 	}
-	$update_link_info = "update node_info set link_info = " . escapeshellarg(serialize($links)) . " where node = '" . $node . "'";
-	wxc_putMySql($sql_connection, $update_link_info);
 }
 if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold");
