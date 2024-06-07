@@ -135,6 +135,7 @@ if (empty($allMeshNodes)) {
 		if(empty($allMeshNodes)) {
 			exit("Failed.\n");
 		}
+	}
 }
 
 //decode the json retrieved from localnode
