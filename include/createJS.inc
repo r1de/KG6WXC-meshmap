@@ -2,8 +2,8 @@
 function createJS($pollingInfo, $mapInfo, $arednVersions) {
 	$sql_connection = wxc_connectToMySQL();
 
-	$node_info_result = mysqli_query($sql_connection, "SELECT * FROM node_info") or die("Could not run node info query.");
-	$topology_info_result = mysqli_query($sql_connection, "SELECT * FROM topology") or die("Could not run topology query.");
+//	$node_info_result = mysqli_query($sql_connection, "SELECT * FROM node_info") or die("Could not run node info query.");
+//	$topology_info_result = mysqli_query($sql_connection, "SELECT * FROM topology") or die("Could not run topology query.");
 
 	$noRFDevices = array();
 	$nineDevices = array();

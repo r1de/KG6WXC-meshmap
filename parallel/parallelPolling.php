@@ -146,7 +146,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 	
 	if ($USE_SQL) {
 		//build up the huge SQL query for this device
-		$sqlQuery = "REPLACE INTO " . $GLOBALS['USER_SETTINGS']['sql_db_tbl'] . "(";
+		$sqlQuery = "INSERT INTO " . $GLOBALS['USER_SETTINGS']['sql_db_tbl'] . " (";
 		foreach($deviceInfo as $k => $v) {
 			$sqlQuery .= $k . ", ";
 		}
@@ -154,12 +154,16 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 		foreach($deviceInfo as $k => $v) {
 			$sqlQuery .= "'" . $v . "', ";
 		}
-		$sqlQuery .= "NOW());";
-//		$sqlQuery .= "NOW()) ON DUPLICATE KEY UPDATE ";
-//		foreach($deviceInfo as $k => $v) {
-//			$sqlQuery .= $k . " = '" . $v . "', ";
-//		}
-//		$sqlQuery .= "last_report = NOW()";
+//		$sqlQuery .= "NOW());";
+		$sqlQuery .= "NOW()) ON DUPLICATE KEY UPDATE ";
+		foreach($deviceInfo as $k => $v) {
+			if($k == "wlan_ip") {
+				continue;
+			}else {
+				$sqlQuery .= $k . " = '" . $v . "', ";
+			}
+		}
+		$sqlQuery .= "last_seen = NOW()";
 		
 		//connect to the SQL server from the user-settings.ini file
 		$sql_connection = wxc_connectToMySQL();

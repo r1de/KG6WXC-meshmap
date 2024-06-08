@@ -245,10 +245,15 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 	$sql_connection = wxc_connectToMySQL();
 	//do stuff here
 	foreach($nodeDevices as $wlan_ip => $info) {
-		$sql = "REPLACE INTO node_info (wlan_ip, hopsAway, link_info) VALUES('" .
-				$wlan_ip . "', " .
-				$info['hopsAway'] . ", " .
-				escapeshellarg(serialize($info['link_info'])) . ")";
+		$sql = "INSERT INTO node_info (wlan_ip, hopsAway, link_info) VALUES ('" .
+				$wlan_ip . "', " . $info['hopsAway'] . ", " .
+				escapeshellarg(serialize($info['link_info'])) . ") ON DUPLICATE KEY UPDATE " .
+				"hopsAway = " . $info['hopsAway'] . ", " .
+				"link_info = " . escapeshellarg(serialize($info['link_info']));
+//		$sql = "REPLACE INTO node_info (wlan_ip, hopsAway, link_info) VALUES('" .
+//				$wlan_ip . "', " .
+//				$info['hopsAway'] . ", " .
+//				escapeshellarg(serialize($info['link_info'])) . ")";
 		wxc_putMySql($sql_connection, $sql);
 	}
 	mysqli_close($sql_connection);
