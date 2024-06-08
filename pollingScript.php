@@ -283,12 +283,12 @@ if($autoCheckArednVersions) {
 	}
 */
 	if($USE_SQL) {
-		$sql = "REPLACE INTO aredn_info (current_stable_version, current_nightly_version) VALUES('" .
+		$sql = "INSERT INTO aredn_info (id, current_stable_version, current_nightly_version) VALUES('AREDNINFO', '" .
 				$versions['AREDN_STABLE_VERSION'] . "', '" .
-				$versions['AREDN_NIGHTLY_VERSION'] . "')";
-//		$sql = "REPLACE INTO aredn_info (id, current_version) VALUES(" .
-//				"AREDN_STABLE_VERSION, " . $versions['AREDN_STABLE_VERSION'] . ")";
-		
+				$versions['AREDN_NIGHTLY_VERSION'] . "') ON DUPLICATE KEY UPDATE " .
+				"current_stable_version = '" . $versions['AREDN_STABLE_VERSION'] . "', " .
+				"current_nightly_version = '" . $versions['AREDN_NIGHTLY_VERSION'] . "'";
+
 		if($USER_SETTINGS['SQL_TYPE'] == "sqlite") {
 			$dbHandle = new SQLite3($INCLUDE_DIR . "/sqlite3_db/mesh-map.sqlite");
 			$dbHandle->exec($sql);
@@ -533,6 +533,9 @@ if($TEST_MODE) {
 //get polling stats and echo in test mode
 $pollingInfo = [];
 
+//$pollingInfo['id'] = "POLLINFO";
+$pollingInfo['numParallelThreads'] = $USER_SETTINGS['numParallelThreads'];
+
 $pollingInfo['nodeTotal'] = $nodeCount;
 if ($TEST_MODE) {
 	//total nodes found to try and poll
@@ -607,6 +610,24 @@ if($TEST_MODE) {
 	//display how long it took to poll all the nodes
 	echo "Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n\n";
 }
+$q = "INSERT INTO map_info (id, ";
+foreach($pollingInfo as $k => $v) {
+	$q .= $k . ", ";
+}
+$q .= "lastPollingRun) VALUES ('POLLINFO', ";
+foreach($pollingInfo as $k => $v) {
+	$q .= $v . ", ";
+}
+$q .= "NOW()) ON DUPLICATE KEY UPDATE ";
+foreach($pollingInfo as $k => $v) {
+	if($k == "id") {
+		continue;
+	}else {
+		$q .= $k . " = " . $v . ", ";
+	}
+}
+$q .= "lastPollingRun = NOW()";
+/*
 $q = "REPLACE INTO map_info (";
 foreach($pollingInfo as $k => $v) {
 	$q .= $k . ", ";
@@ -616,6 +637,7 @@ foreach($pollingInfo as $k => $v) {
 	$q .= $v . ", ";
 }
 $q .= "NOW())";
+*/
 wxc_putMySql($sql_connection, $q);
 
 $mapInfo = [];
@@ -633,7 +655,7 @@ if($TEST_MODE) {
 }
 $mapDataFileName = $USER_SETTINGS['webpageDataDir'] . "/map_data.js";
 $fh = fopen($mapDataFileName, "w") or die ("could not open file");
-fwrite($fh, createJS($pollingInfo, $mapInfo));
+fwrite($fh, createJS($pollingInfo, $mapInfo, $versions));
 fclose($fh);
 
 createNodeReportJSON($sql_connection, $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json");
