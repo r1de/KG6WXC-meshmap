@@ -471,7 +471,7 @@ foreach($query as $v) {
 		$links = unserialize($q_results['link_info']);
 	}
 
-	if(!is_null($links)) {
+	if(!empty($links)) {
 		foreach($links as $k => $v){
 			$query = "SELECT lat, lon from node_info where wlan_ip = '" . $k  . "'";
 			$link_coords = wxc_getMySql($query);
