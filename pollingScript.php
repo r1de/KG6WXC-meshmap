@@ -663,7 +663,9 @@ $fh = fopen($mapDataFileName, "w") or die ("could not open file");
 fwrite($fh, createJS($pollingInfo, $mapInfo, $versions));
 fclose($fh);
 
-createNodeReportJSON($sql_connection, $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json");
+$node_report_data_json = $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json";
+//createNodeReportJSON($sql_connection, $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json");
+createNodeReportJSON($sql_connection, $node_report_data_json);
 
 if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold");
@@ -672,15 +674,18 @@ if($TEST_MODE) {
 //upload a js and json file to another server via SSH
 //must be able to login via SSH key with no password for this to work.
 if($USER_SETTINGS['uploadToCloud']) {
-	if($TEST_MODE) {
-		echo "Uploading map data files to the 'cloud' via SSH to: " . $USER_SETTINGS['cloudServerUser'] , '@' . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "... ";
+	foreach($USER_SETTINGS['cloudServer'] as $k => $v) {
+		if($TEST_MODE) {
+			echo "Uploading map data files to the 'cloud' via SSH to: " . $k  . "... ";
+		}
+		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $v . "/map_data.js");
+		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $node_report_data_json . " " . $v . "/node_report_data.json");
+//	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/map_data.js");
+//	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/node_report_data.json");
+		if($TEST_MODE) {
+			echo wxc_addColor("Done!", "greenBold");
+			echo "\n";
+		}
 	}
-	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/map_data.js");
-	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/node_report_data.json");
-	if($TEST_MODE) {
-		echo wxc_addColor("Done!", "greenBold");
-		echo "\n\n";
-	}
-
 }
 ?>
