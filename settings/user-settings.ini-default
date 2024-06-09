@@ -198,11 +198,12 @@ errFile = "./logs/polling_errors.log"
 noLocFile = "./logs/no_location.log"
 
 :TODO: document these new settings
-uploadToCloud = 0
-cloudSSHKeyFile = ""
-cloudServerUser = ""
-cloudServer = ""
-cloudServerDirectory = ""
+uploadToCloud = false
+cloudSSHKeyFile = "/username/.ssh/id_rsa"
+;;cloudServerUser = ""
+cloudServer['ExampleName'] = "user@host:directory"
+cloudServer['ExampleName2'] = "user@host:directory"
+;;cloudServerDirectory = ""
 
 webpageDataDir = ""
 

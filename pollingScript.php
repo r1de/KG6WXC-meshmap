@@ -675,6 +675,9 @@ if($TEST_MODE) {
 //must be able to login via SSH key with no password for this to work.
 if($USER_SETTINGS['uploadToCloud']) {
 	foreach($USER_SETTINGS['cloudServer'] as $k => $v) {
+		if(str_contains($k, "Example")) {
+			continue;
+		}
 		if($TEST_MODE) {
 			echo "Uploading map data files to the 'cloud' via SSH to: " . $k  . "... ";
 		}
