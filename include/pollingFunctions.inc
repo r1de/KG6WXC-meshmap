@@ -102,9 +102,14 @@ function parseSysinfoJson($jsonString, $ip) {
 		$results['freq'] = "None";
 //		$results['interfaces'] = "";
 		$results['link_info'] = "";
-		$results['hopsAway'] = 999;
+		$results['hopsAway'] = 0;
+
+		$results['antGain'] = "Not Available";
+		$results['antBeam'] = "Not Available";
+		$results['antDesc'] = "Not Available";
+		$results['antBuiltin'] = "Not Available";
 		
-		$results['hopsAway'] = $jsonString['hopsAway'];
+//		$results['hopsAway'] = $jsonString['hopsAway'];
 		
 		//hack for USB150 devices
 		$results['eth3975'] = 0;
@@ -196,6 +201,12 @@ function parseSysinfoJson($jsonString, $ip) {
 									break;
 								case "channel":
 									$results['channel'] = $value2;
+									break;
+								case "antenna":
+									$results['antGain'] = $value2['gain'];
+									$results['antBeam'] = $value2['beamwidth'];
+									$results['antDesc'] = $value2['description'];
+									$results['antBuiltin'] = $value2['builtin'];
 									break;
 									
 									//tunnel values

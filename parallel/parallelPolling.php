@@ -9,7 +9,7 @@ if (PHP_SAPI !== 'cli') {
         <p style='color: red;'>command line</p>!</strong>
         <br>exiting...");
 }
-$INCLUDE_DIR = ".";
+$INCLUDE_DIR = "..";
 //get required php files
 require $INCLUDE_DIR . "/include/mysqlFunctions.inc";
 require $INCLUDE_DIR . "/include/pollingFunctions.inc";
