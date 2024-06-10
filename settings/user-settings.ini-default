@@ -72,7 +72,7 @@ map_initial_zoom_level = "10"
 ;;Prefer Kilometers over Miles?
 ;change to "true" to flip the preference
 ;the map page will then show 1km (1.62mi)
-kilometers = "false"
+kilometers = false
 
 ;;If you have map tiles or a mesh tile server of your own (or on your mesh network) put it here.
 ;these map tiles will be used when there is no internet access available

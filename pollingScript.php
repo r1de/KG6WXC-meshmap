@@ -327,6 +327,10 @@ $START_POLLING = 1;
 //lets go polling!
 if($START_POLLING) {
 	$donePolling = 0;
+
+	//TODO: DO NOT LEAVE IT LIKE THIS
+	$USER_SETTINGS['node_polling_parallel'] = "true";
+
 	if($USER_SETTINGS['node_polling_parallel']) {
 		if($TEST_MODE) {
 			echo "Polling Progress (" . $USER_SETTINGS['numParallelThreads'] . "x): ";
@@ -652,6 +656,7 @@ $mapInfo['mapTileServers'] = $USER_SETTINGS['mapTileServers'];
 $mapInfo['title'] = $USER_SETTINGS['pageTitle'];
 $mapInfo['attribution'] = $USER_SETTINGS['attribution'];
 $mapInfo['mapContact'] = $USER_SETTINGS['mapContact'];
+$mapInfo['kilometers'] = $USER_SETTINGS['kilometers'];
 $mapInfo['webpageDataDir'] = "";
 
 $pollingInfo['lastPollingRun'] = gmdate("Y-m-d H:i:s");
