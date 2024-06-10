@@ -39,8 +39,10 @@ localnode = "localnode.local.mesh"
 
 ;;Current firmware version.
 ;(this will have to be edited by hand each time it changes)
-;Sorry, no way around that yet.
+;Sorry, no way around that yet. (Oh! But there is!)
 ;--------------------------------------------------------------
+AREDN_VERSION_CHECK_URL = "http://downloads.arednmesh.org/afs/www/config.js"
+aredn_firmware_check = "true"
 ;current_stable_fw_version = "3.22.12"
 
 ;;Time Zone we're going to be running in.
@@ -50,30 +52,13 @@ localnode = "localnode.local.mesh"
 ;--------------------------------------------------------------
 localTimeZone = "America/Los_Angeles"
 
-;;How often would you like the script sections to run? (in minutes)
-;node_polling_interval controls how often the scripts go out across the mesh to poll each node
-;Node polling uses mesh resources and really should not be done all that often.
-;More than once an hour is probably overkill, unless it's needed for a big build out or something.
-;--------------------------------------------------------------
-node_polling_interval = "61"
-
-;link_interval controls how often we update the link info
-;Getting the link info *does not* really use mesh resources, we just ask our localnode for the info.
-;In other words this part could be made to operate in pretty much realtime, but you probably should not do that.
-;5 minutes seems like a good setting here.
-;--------------------------------------------------------------
-link_update_interval = "5"
-
-;;There is another, new, aspect to node polling, it can be run in parallel.
+;;Polling is always run in parallel now.
 ;a separate php script is spawned for each node on the network,
-;this runs much faster time wise, but you lose the ability to see what the node polling script is doing.
+;this runs much faster timewise.
 ;it probably doesn't use more resources than doing it sequetially, it just does it all in one big burst.
-;this does make the link lines take a bit longer properly to build in the database,
-;as sometimes the info is just not there yet. over time this seems to work itself out.
-;All this is being worked on, but for now, turn the parallelism on or off here
-;"1" is ON and "0" is OFF. Like a switch.
+;Set to how many nodes to poll at once, the script will keep this many going until all are done.
+;What happens is that you end up with a handful of timeouts at the end.
 ;--------------------------------------------------------------
-node_polling_parallel = "1"
 numParallelThreads = "60"
 
 ;;Map Center Coordinates and starting zoom level
@@ -85,9 +70,9 @@ map_center_coordinates = "34.35, -119.6"
 map_initial_zoom_level = "10"
 
 ;;Prefer Kilometers over Miles?
-;change to 1 to flip the preference
+;change to "true" to flip the preference
 ;the map page will then show 1km (1.62mi)
-kilometers = "0"
+kilometers = "false"
 
 ;;If you have map tiles or a mesh tile server of your own (or on your mesh network) put it here.
 ;these map tiles will be used when there is no internet access available
@@ -121,75 +106,17 @@ inetTileServer['Terrain-Default'] = "//stamen-tiles-{s}.a.ssl.fastly.net/terrain
 ;--------------------------------------------------------------
 pageTitle = "KG6WXC MeshMap"
 ;pageLogo = "images/MESHMAP_LOGO.svg"
-;logoHeaderText = "Mesh Map"
-
-;;Welcome to the Mesh Map Message
-;uncomment and edit the "otherTopOfMapMsg" below if you want to add other text above the map
-;--------------------------------------------------------------
-;welcomeMessage	=	"Welcome to the Mesh Map"
-;otherTopOfMapMsg = ""
-
-;;Custom message if you are on the Mesh Server
-;--------------------------------------------------------------
-;meshServerText = "You are connected to the Mesh Network and running on device: %s"
-
-;;Custom Message if you are on the Internet Server
-;--------------------------------------------------------------
-;inetServerText = "Your are connected to the internet and are running on device: %s"
-
-;;Custom Mesh Warning message
-;uncomment and edit to enable
-;--------------------------------------------------------------
-;meshWarning	=	""
+attribution = "KG6WXC MeshMap"
+mapContact = ""
 
 ;;Node expiration intervals
 ;after how many *days* do nodes get removed when we have not heard from them?
 ;if the same node re-appears after this time it will get automatically removed from the ignore list,
 ;and will continue to be updated as normal.
-;Set expire_old_nodes to "1" to actually expire the old nodes. "0" will not expire any nodes.
+;Set expire_old_nodes to "true" to actually expire the old nodes. "false" will not expire any nodes.
 ;--------------------------------------------------------------
+expire_old_nodes = "true"
 node_expire_interval = "30"
-expire_old_nodes = "0"
-
-;;How many *hours* to ignore hosts that give us a 404 error when asking for the json files
-;a "404 error" from the node usually indicates it is running really old firmware.
-;this allows the script to only check these nodes once a day, and not waste time.
-;hopefully the owner will update one of these days. :)
-;--------------------------------------------------------------
-error404_expire_interval = "26"
-
-;;How many *minutes* to ignore nodes that give us a "no route to host" error
-;these may be temporary errors and should not be ignored long
-;--------------------------------------------------------------
-errorNoRoute_expire_interval = "90"
-
-;;How many *minutes* to ignore nodes that give us a "connection refused" error
-;these can also be quite temporary, like when olsrd happens to be restarting or something
-;--------------------------------------------------------------
-errorRefused_expire_interval = "90"
-
-;;The map has the ability to tell what host it is running on.
-;Things can change accordingly. Say you want the map on the mesh?
-;You'll need offline map files and to use offline js add-on scripts.
-;If your system can be accessed by both the mesh and the internet,
-;this may come in handy.
-;Just set these next three variables accodingly, if unsure leave them.
-;--------------------------------------------------------------
-meshServerHostName = ""
-inetServerHostname = ""
-
-AREDN_VERSION_CHECK_URL = "http://downloads.arednmesh.org/afs/www/config.js"
-
-;;Values below control how the map is displayed in map_display.php
-;--------------------------------------------------------------
-;Map size
-; 0 = display the map in full screen.
-; 1 = display the map in an iFrame.
-map_iFrame_Enabled = "0"
-
-;;Outerrors in "silent" mode (cron jobs)
-;leave set to "0" for now (3-29-19)
-errorsInCron = "0"
 
 ;;Polling output and error files
 ;---------------------------------------------------------------
@@ -197,13 +124,11 @@ outputFile = "./logs/polling_output.log"
 errFile = "./logs/polling_errors.log"
 noLocFile = "./logs/no_location.log"
 
-:TODO: document these new settings
+;TODO: document these new settings
 uploadToCloud = false
 cloudSSHKeyFile = "/username/.ssh/id_rsa"
-;;cloudServerUser = ""
 cloudServer['ExampleName'] = "user@host:directory"
 cloudServer['ExampleName2'] = "user@host:directory"
-;;cloudServerDirectory = ""
 
 webpageDataDir = ""
 
@@ -212,5 +137,3 @@ mapTileServers['Street-default'] = "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
 mapTileServers['Satellite'] = "//basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
 mapTileServers['KG6WXC on AREDN'] = "//kg6wxc-osm.local.mesh/osm_tiles/{z}/{x}/{y}.png"
 
-attribution = "MeshMap"
-mapContact = ""

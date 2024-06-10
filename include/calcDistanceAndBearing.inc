@@ -26,12 +26,13 @@ function wxc_getDistanceAndBearing (float $node_lat, float $node_lon, float $lin
 	
 	$angleBetweenTheTwoPoints = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) + cos($distanceLatFrom) * cos($distanceLatTo) * pow(sin($lonDelta / 2), 2)));
 	
-	$distance = $angleBetweenTheTwoPoints * $earthRadiusKM;
-	$distance = round($distance, 2);
-	//an sql expression for distance? (to make the SQL server do this!)
+	$distanceKM = $angleBetweenTheTwoPoints * $earthRadiusKM;
+	$distanceKM = round($distanceKM, 2);
+	$distanceMiles = $angleBetweenTheTwoPoints * $earthRadiusMiles;
+	$distanceMiles = round($distanceMiles, 2);
 	
 	$bearing = (rad2deg(atan2(sin(deg2rad($linked_node_lon) - deg2rad($node_lon)) * cos(deg2rad($linked_node_lat)), cos(deg2rad($node_lat)) * sin(deg2rad($linked_node_lat)) - sin(deg2rad($node_lat)) * cos(deg2rad($linked_node_lat)) * cos(deg2rad($linked_node_lon) - deg2rad($node_lon)))) + 360) % 360;
 	
-	return array("distance" => $distance, "bearing" => $bearing);
+	return array("distanceKM" => $distanceKM, "distanceMiles" => $distanceMiles, "bearing" => $bearing);
 }
 ?>

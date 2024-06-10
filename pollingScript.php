@@ -489,7 +489,8 @@ foreach($query as $v) {
 					if(isset($links[$k]['linkType'])) {
 						if($links[$k]['linkType'] == "RF") {
 							$dist_bear = wxc_getDistanceAndBearing($q_results['lat'], $q_results['lon'], $link_coords['lat'], $link_coords['lon']);
-							$links[$k]['distance'] = $dist_bear['distance'];
+							$links[$k]['distanceKM'] = $dist_bear['distanceKM'];
+							$links[$k]['distanceMiles'] = $dist_bear['distanceMiles'];
 							$links[$k]['bearing'] = $dist_bear['bearing'];
 						}
 					}
