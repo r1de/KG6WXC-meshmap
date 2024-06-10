@@ -104,10 +104,10 @@ function parseSysinfoJson($jsonString, $ip) {
 		$results['link_info'] = "";
 		$results['hopsAway'] = 0;
 
-		$results['antGain'] = "Not Available";
-		$results['antBeam'] = "Not Available";
+		$results['antGain'] = 0;
+		$results['antBeam'] = 0;
 		$results['antDesc'] = "Not Available";
-		$results['antBuiltin'] = "Not Available";
+		$results['antBuiltin'] = "false";
 		
 //		$results['hopsAway'] = $jsonString['hopsAway'];
 		
@@ -203,10 +203,20 @@ function parseSysinfoJson($jsonString, $ip) {
 									$results['channel'] = $value2;
 									break;
 								case "antenna":
-									$results['antGain'] = $value2['gain'];
-									$results['antBeam'] = $value2['beamwidth'];
-									$results['antDesc'] = $value2['description'];
-									$results['antBuiltin'] = $value2['builtin'];
+									if($results['meshRF'] != "off") {
+										if(isset($value2['gain'])) {
+											$results['antGain'] = $value2['gain'];
+										}
+										if(isset($value2['beamwidth'])) {
+											$results['antBeam'] = $value2['beamwidth'];
+										}
+										if(isset($value2['description'])) {
+											$results['antDesc'] = $value2['description'];
+										}
+										if(isset($value2['builtin'])) {
+											$results['antBuiltin'] = $value2['builtin'];
+										}
+									}
 									break;
 									
 									//tunnel values
