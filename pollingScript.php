@@ -54,6 +54,8 @@ if (!empty($argv[1])) {
 		case "--help":
 			echo $argv[0] . " Usage:\n\n";
 			echo $argv[1] . "\tThis help message\n\n";
+			echo "--data-files-only\tNo polling, only regenerate the data files used by the webpage\n";
+			echo wxc_addColor("this option does not work yet", "redBold") . "\n\n";
 			echo "--test-mode-no-sql\tDO NOT access database only output to screen\n";
 			echo "(or to the log files when using parallel mode)\n";
 			echo "(this parameter is useful for testing)\n\n";
@@ -69,6 +71,10 @@ if (!empty($argv[1])) {
 	    case "--test-mode-with-sql":
 	    	$TEST_MODE = 1;
 			break;
+	    case "--data-files-only":
+	    	$USE_SQL = 0;
+	    	$START_POLLING = 0;
+	    	break;
 	    default:
 	    	exit("Unknown parameter\nTry: " . $argv[0] . wxc_addColor(" --help", "red") . "\n");	    	
 	}
@@ -93,14 +99,8 @@ if (file_exists($INCLUDE_DIR . "/settings/user-settings.ini")) {
 //merge default settings and users custom settings
 $USER_SETTINGS = array_merge($DEFAULT_USER_SETTINGS, $USER_SETTINGS);
 
-//temporary testing variables that are set
-//(these should be removed later)
-//$GLOBALS['testNodePolling'] = 1;
-$nodeCount = 0;
-$badCount = 0;
-$noArraySent = 0;
-
 //first grab the localnodes actual name
+//this is used to locate the map data "origin"
 if($TEST_MODE) {
 	echo "Polling " . $USER_SETTINGS['localnode'] . " for some info before starting... ";
 }
@@ -321,6 +321,7 @@ if($autoCheckArednVersions) {
 $mysql_db = "";
 $sqlite3_db = "";
 
+$nodeCount = 0;
 
 $START_POLLING = 1;
 
@@ -380,8 +381,9 @@ if($START_POLLING) {
 		if($TEST_MODE) {
 			echo wxc_addColor("Done!", "greenBold") . "\n";
 		}
-	}else {
+	}/******  NO MORE SEQUENTIAL MODE ******/ /* else {
 		// NOT IN PARALLEL MODE!
+
 		foreach($nodeDevices as $ip => $deviceInfo) {
 			$sysinfoJson = @file_get_contents("http://" . $ip . ":8080/cgi-bin/sysinfo.json?link_info=1&services_local=1");
 			if($sysinfoJson == "" || is_null($sysinfoJson)) {
@@ -395,7 +397,7 @@ if($START_POLLING) {
 						"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
 				fclose($err_log);
 				continue;
-			}else {
+			} else {
 				if($sysinfoJson !== "") {
 					//remove any "funny" characters from the sysinfo.json string *BEFORE* it gets decoded
 					//these mainly occur when people get fancy with the description field
@@ -459,9 +461,10 @@ if($START_POLLING) {
 			}
 		}
 	}
+*/
 }
 
-//create the topology table
+//create the topology info
 if($TEST_MODE) {
 	echo "Building Topology information: ";
 }
@@ -470,7 +473,6 @@ $sql_connection = wxc_connectToMySQL();
 
 $query = wxc_getMysqlFetchAll("select node from node_info");
 
-//wxc_putMySql($sql_connection, "truncate topology");
 foreach($query as $v) {
 	$node = $v['node'];
 
@@ -498,36 +500,12 @@ foreach($query as $v) {
 							$links[$k]['bearing'] = $dist_bear['bearing'];
 						}
 					}
-	
-	/*				
-					if(isset($links[$k]['hostname'])) {
-						$link_name = $links[$k]['hostname'];
-					}
-	
-					$query = "insert into topology set node = '" . $q_results['node'] . "', nodelat = '" . $q_results['lat'] . "', nodelon = '" . $q_results['lon'] . "', ";
-					$query .= "linkto = '" . $link_name . "', linklat = '" . $link_coords['lat'] . "', linklon = '" . $link_coords['lon'] . "', ";
-					$query .= "distance = '" . $dist_bear['distance'] . "', bearing = '" . $dist_bear['bearing'] . "', ";
-					foreach ($links[$k] as $link => $info) {
-						$query .=  '`' . $link . '`' . " = '" . $info . "', ";
-						unset($info);
-					}
-					
-					$query = trim($query);
-					$query = substr($query, 0, -1);
-	
-					//echo "\n\n" . $query . "\n\n";
-					//exit();
-					
-					wxc_putMySql($sql_connection, $query);
-	*/
+
 					$link_count++;
 					unset($v);
 					if($TEST_MODE) {
 						printf("\033[32G\033'({$link_count})... ", "", "");
-	//					printf("\033[26G\033'({$link_count})... ", "", "");
-						//printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
-					}
-	
+					}	
 				}
 			}
 		}
@@ -637,17 +615,7 @@ foreach($pollingInfo as $k => $v) {
 	}
 }
 $q .= "lastPollingRun = NOW()";
-/*
-$q = "REPLACE INTO map_info (";
-foreach($pollingInfo as $k => $v) {
-	$q .= $k . ", ";
-}
-$q .= "lastPollingRun) VALUES (";
-foreach($pollingInfo as $k => $v) {
-	$q .= $v . ", ";
-}
-$q .= "NOW())";
-*/
+
 wxc_putMySql($sql_connection, $q);
 
 $mapInfo = [];
@@ -672,14 +640,15 @@ fwrite($fh, createJS($pollingInfo, $mapInfo, $versions));
 fclose($fh);
 
 $node_report_data_json = $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json";
-//createNodeReportJSON($sql_connection, $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json");
+
 createNodeReportJSON($sql_connection, $node_report_data_json);
 
 if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold");
 	echo "\n\n";
 }
-//upload a js and json file to another server via SSH
+
+//upload the js and json file to another server via SSH
 //must be able to login via SSH key with no password for this to work.
 if($USER_SETTINGS['uploadToCloud']) {
 	foreach($USER_SETTINGS['cloudServer'] as $k => $v) {
@@ -691,8 +660,6 @@ if($USER_SETTINGS['uploadToCloud']) {
 		}
 		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $v . "/map_data.js");
 		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $node_report_data_json . " " . $v . "/node_report_data.json");
-//	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/map_data.js");
-//	exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json " . $USER_SETTINGS['cloudServerUser'] . "@" . $USER_SETTINGS['cloudServer'] . ":" . $USER_SETTINGS['cloudServerDirectory'] . "/node_report_data.json");
 		if($TEST_MODE) {
 			echo wxc_addColor("Done!", "greenBold");
 			echo "\n";
