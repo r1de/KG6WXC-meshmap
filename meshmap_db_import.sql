@@ -54,23 +54,6 @@ CREATE TABLE `map_info` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `marker_info`
---
-
-DROP TABLE IF EXISTS `marker_info`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `marker_info` (
-  `id` int(11) DEFAULT NULL,
-  `name` varchar(128) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `type` varchar(20) DEFAULT NULL,
-  `lat` double NOT NULL,
-  `lon` double NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `node_info`
 --
 
@@ -115,23 +98,6 @@ CREATE TABLE `node_info` (
   UNIQUE KEY `node_info_UN` (`wlan_ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
-  `id` int(11) DEFAULT NULL,
-  `admin` int(1) DEFAULT NULL,
-  `user` varchar(50) DEFAULT NULL,
-  `passwd` varchar(256) DEFAULT NULL,
-  `last_login` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
