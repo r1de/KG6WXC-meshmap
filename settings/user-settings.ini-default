@@ -66,7 +66,8 @@ numParallelThreads = "60"
 ;This will probably take some experimenting to get just right.
 ;These values are for Ventura and Santa Barbara Counties in California.
 ;--------------------------------------------------------------
-map_center_coordinates = "34.35, -119.6"
+map_center_coordinates['lat'] = "34.35"
+map_center_coordinates['lon'] = "-119.6"
 map_initial_zoom_level = "10"
 
 ;;Prefer Kilometers over Miles?

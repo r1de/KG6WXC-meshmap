@@ -658,6 +658,8 @@ $mapInfo['attribution'] = $USER_SETTINGS['attribution'];
 $mapInfo['mapContact'] = $USER_SETTINGS['mapContact'];
 $mapInfo['kilometers'] = $USER_SETTINGS['kilometers'];
 $mapInfo['webpageDataDir'] = "";
+$mapInfo['mapCenterCoords'] = array($USER_SETTINGS['map_center_coordinates']['lat'], $USER_SETTINGS['map_center_coordinates']['lon']);
+$mapInfo['mapInitialZoom'] = $USER_SETTINGS['map_initial_zoom_level'];
 
 $pollingInfo['lastPollingRun'] = gmdate("Y-m-d H:i:s");
 
