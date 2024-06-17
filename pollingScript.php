@@ -598,6 +598,7 @@ if($TEST_MODE) {
 	//display how long it took to poll all the nodes
 	echo "Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n\n";
 }
+
 $q = "INSERT INTO map_info (id, ";
 foreach($pollingInfo as $k => $v) {
 	$q .= $k . ", ";
@@ -628,6 +629,8 @@ $mapInfo['kilometers'] = $USER_SETTINGS['kilometers'];
 $mapInfo['webpageDataDir'] = "";
 $mapInfo['mapCenterCoords'] = array($USER_SETTINGS['map_center_coordinates']['lat'], $USER_SETTINGS['map_center_coordinates']['lon']);
 $mapInfo['mapInitialZoom'] = $USER_SETTINGS['map_initial_zoom_level'];
+$mapInfo['totalNodesInDB'] = count(wxc_getMysqlFetchAll("SELECT node from node_info where lat is not null"));
+$mapInfo['weekPlusOld'] = count(wxc_getMysqlFetchAll("select node from node_info where last_seen is null or last_seen < now() - interval 1 week"));
 
 $pollingInfo['lastPollingRun'] = gmdate("Y-m-d H:i:s");
 
