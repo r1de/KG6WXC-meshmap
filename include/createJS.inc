@@ -46,7 +46,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 				}
 				if($k === "services") {
 					$services = array();
-					$services = @nserialize($v);
+					$services = @unserialize($v);
 					$row[$k] = $services;
 				}
 				if($k === "link_info") {
