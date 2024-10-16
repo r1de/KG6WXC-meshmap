@@ -97,6 +97,8 @@ function parseSysinfoJson($jsonString, $ip) {
 		$results['lan_ip'] = "Not Available";
 		$results['services'] = "Not Available";
 		$results['description'] = "";
+		$results['mesh_supernode'] = "false";
+		$results['mesh_gateway'] = "false";
 //		$results['signal'] = 0;
 //		$results['noise'] = 0;
 		$results['freq'] = "None";
@@ -190,6 +192,9 @@ function parseSysinfoJson($jsonString, $ip) {
 							switch($key2) {
 								
 								//meshrf values
+								case "freq":
+									$results['freq'] = $value2;
+									break;
 								case "status":
 									$results['meshRF'] = $value2;
 									break;
@@ -248,7 +253,17 @@ function parseSysinfoJson($jsonString, $ip) {
 								case "firmware_version":
 									$results['firmware_version'] = $value2;
 									break;
-									
+								case "mesh_gateway":
+									if($value2 == "1") {
+										$results['mesh_gateway'] = "true";
+									}
+									break;
+								case "mesh_supernode":
+									if($value2 == "1") {
+										$results['mesh_supernode'] = "true";
+									}
+									break;
+
 									//there was one "funny" version 1.5 of the json API
 								case "node":
 									$results['node'] = $value2;

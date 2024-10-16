@@ -95,6 +95,8 @@ CREATE TABLE `node_info` (
   `eth3975` int(11) DEFAULT NULL,
   `description` varchar(1024) DEFAULT NULL,
   `freq` varchar(100) DEFAULT NULL,
+  `mesh_gateway` varchar(100) DEFAULT NULL,
+  `mesh_supernode` varchar(100) DEFAULT NULL,
   UNIQUE KEY `node_info_UN` (`wlan_ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
