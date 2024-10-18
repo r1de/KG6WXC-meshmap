@@ -117,23 +117,22 @@ if($TEST_MODE) {
 	echo "Attempting to retrieve network topology from " . $USER_SETTINGS['localnode'] . "... ";
 }
 //attempt to get network topology from AREDN API
-$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
+//try the new way (any firmware after 10-17-2024)
+$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json?topology=1");
+//if that doesn't work try the old way (pre 10-17-2024)
 if (empty($allMeshNodes)) {
-	if($TEST_MODE) {
-		wxc_addColor("\nTHERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'] . "\n", "redBold");
-		echo "Trying again... in 15sec\n";
-		sleep(15);
-		$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
-		if(empty($allMeshNodes)) {
-			exit("Failed\n");
+	$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
+	if(empty($allMeshNodes)) {
+		//the dang node did not return anything, they do this sometimes, try again after a 10 seconds
+		sleep(10);
+		//try the new way (any firmware after 10-17-2024)
+		$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json?topology=1");
+		//if that doesn't work try the old way (pre 10-17-2024)
+		if (empty($allMeshNodes)) {
+			$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
 		}
-	}else {
-		echo "THERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'] . "\n";
-		echo "Trying again... in 15sec\n";
-		sleep(15);
-		$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
 		if(empty($allMeshNodes)) {
-			exit("Failed.\n");
+			exit(wxc_addColor("\nTHERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'] . "\n", "redBold"));
 		}
 	}
 }
@@ -148,6 +147,8 @@ if (!is_array($allMeshNodes)) {
 //pull out just the topology info and clear old $var.
 if (@is_array($allMeshNodes['pages']['mesh']['topology']['topology'])) {
 	$topoInfo = $allMeshNodes['pages']['mesh']['topology']['topology'];
+}elseif(@is_array($allMeshNodes['topology'])) {
+        $topoInfo = $allMeshNodes['topology'];
 }else {
 	if($TEST_MODE) { echo "\n"; }
 	exit(wxc_addColor("YOUR LOCALNODES' API DOES NOT CONTAIN NETWORK TOPOLOGY INFORMATION!", "redBold")  . "\n\n");
@@ -464,12 +465,23 @@ if($START_POLLING) {
 */
 }
 
+//connect back to SQL
+$sql_connection = wxc_connectToMySQL();
+
+//find the supernodes and treat them as we did our localnode above.
+$superNodes = wxc_getMysqlFetchAll("select wlan_ip from node_info where mesh_supernode = 'true'");
+//foreach($superNodes as $super) {
+
+//	}
+//var_dump($superNodes);
+//exit();
+//TODO
+
 //create the topology info
 if($TEST_MODE) {
 	echo "Building Topology information: ";
 }
 $link_count = 0;
-$sql_connection = wxc_connectToMySQL();
 
 $query = wxc_getMysqlFetchAll("select node from node_info");
 

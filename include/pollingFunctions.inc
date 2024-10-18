@@ -304,6 +304,8 @@ function parseSysinfoJson($jsonString, $ip) {
 						case "node":
 							$results['node'] = $value;
 							break;
+						case "hopsAway":
+							$results['hopsAway'] = $value;
 							
 							//catch old API entries
 						case "ssid":
