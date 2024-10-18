@@ -132,6 +132,7 @@ if (empty($allMeshNodes)) {
 			$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
 		}
 		if(empty($allMeshNodes)) {
+			//we have failed 2x, just exit, something is wrong
 			exit(wxc_addColor("\nTHERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'] . "\n", "redBold"));
 		}
 	}
@@ -251,10 +252,7 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 				escapeshellarg(serialize($info['link_info'])) . ") ON DUPLICATE KEY UPDATE " .
 				"hopsAway = " . $info['hopsAway'] . ", " .
 				"link_info = " . escapeshellarg(serialize($info['link_info']));
-//		$sql = "REPLACE INTO node_info (wlan_ip, hopsAway, link_info) VALUES('" .
-//				$wlan_ip . "', " .
-//				$info['hopsAway'] . ", " .
-//				escapeshellarg(serialize($info['link_info'])) . ")";
+				escapeshellarg(serialize($info['link_info'])) . ")";
 		wxc_putMySql($sql_connection, $sql);
 	}
 	mysqli_close($sql_connection);
@@ -275,19 +273,7 @@ if($autoCheckArednVersions) {
 	if($TEST_MODE) {
 		echo wxc_addColor("Done!", "greenBold") . "\n(Stable: " . $versions['AREDN_STABLE_VERSION'] . " Nightly: " . $versions['AREDN_NIGHTLY_VERSION'] . ")\n\n";
 	}
-/*
-	var_dump($versions);
-	exit();
-	
-	//check latest AREDN versions and set the old variable from $USER_SETTINGS
-	$GLOBALS['USER_SETTINGS']['current_stable_fw_version'] = check_aredn_stable_version();
-	$NIGHTLY_INFO = check_aredn_nightly_build_number();
-	//$NIGHTLY_INFO['number'] = "1234567";
-	//$NIGHTLY_INFO['date'] = "12/12/12";
-	if($TEST_MODE) {
-		echo wxc_addColor("Done!", "greenBold") . "\n(Stable: " . $USER_SETTINGS['current_stable_fw_version'] . " Nightly: " . $NIGHTLY_INFO['number'] . ")\n\n";
-	}
-*/
+
 	if($USE_SQL) {
 		$sql = "INSERT INTO aredn_info (id, current_stable_version, current_nightly_version) VALUES('AREDNINFO', '" .
 				$versions['AREDN_STABLE_VERSION'] . "', '" .
@@ -382,87 +368,7 @@ if($START_POLLING) {
 		if($TEST_MODE) {
 			echo wxc_addColor("Done!", "greenBold") . "\n";
 		}
-	}/******  NO MORE SEQUENTIAL MODE ******/ /* else {
-		// NOT IN PARALLEL MODE!
-
-		foreach($nodeDevices as $ip => $deviceInfo) {
-			$sysinfoJson = @file_get_contents("http://" . $ip . ":8080/cgi-bin/sysinfo.json?link_info=1&services_local=1");
-			if($sysinfoJson == "" || is_null($sysinfoJson)) {
-				$err_log = fopen($USER_SETTINGS['errFile'], "a");
-				if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
-					$failReason = "No error, just... nothing, null, nada.";
-				}else {
-					$failReason = trim(substr(strrchr(error_get_last()['message'], ":"), 1));
-				}
-				fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
-						"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
-				fclose($err_log);
-				continue;
-			} else {
-				if($sysinfoJson !== "") {
-					//remove any "funny" characters from the sysinfo.json string *BEFORE* it gets decoded
-					//these mainly occur when people get fancy with the description field
-					//use html name codes people! do not use the hex codes!
-					$sysinfoJson = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $sysinfoJson);
-					
-					//decode json
-					$sysinfoJson = json_decode($sysinfoJson,true);
-					
-					if(is_array($sysinfoJson)) {
-						foreach($sysinfoJson as $k => $v) {
-							if (empty($v)) {
-								$noLocCount = 0;
-								if ($k == 'lat' || $k == 'lon' && $noLocCount) {
-									$noLoc = fopen($USER_SETTINGS['noLocFile'], "a");
-									fwrite($noLoc, (date("M j G:i:s") . " - " . wxc_addColor("no usable location info from: ", "orange") . $ip . " (" . $sysinfoJson['node'] . ")\n"));
-									$noLocCount++;
-									$noLocation++;
-									fclose($noLoc);
-								}
-							}
-							
-							if($k == 'link_info') {
-								foreach($v as $l => $info) {
-									
-									foreach($info as $x => $y) {
-										$nodeDevices[$ip][$k][$l][$x] = $y;
-									}
-									unset($x);
-									unset($y);
-								}
-								unset($l);
-								unset($info);
-							}else {
-								$nodeDevices[$ip][$k] = $v;
-							}
-						}
-						unset($k);
-						unset($v);
-						
-						
-						outputToConsole(parseSysinfoJson($nodeDevices[$ip]));
-						outputToFile(parseSysinfoJson($nodeDevices[$ip]));
-						$nodeCount++;
-					}else {
-						$err_log = fopen($USER_SETTINGS['errFile'], "a");
-						//echo "sysinfoJson is not an array. from: " . $ip . "\n";
-						fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not parsed correctly from: ", "red") . $ip . " - JSON_ERR_MSG: " . wxc_addColor(json_last_error_msg(), "red") . "\n"));
-						fclose($err_log);
-						//$badCount++;
-					}
-				}else {
-					$err_log = fopen($USER_SETTINGS['errFile'], "a");
-					fwrite($err_log, (date("M j G:i:s") . wxc_addColor("sysinfo.json was null from: " . $ip . "\n", red)));
-					fclose($err_log);
-					//$badCount++;
-				}
-			unset($ip);
-			unset($deviceInfo);
-			unset($sysinfoJson);
-			}
-		}
 	}
-*/
 }
 
 //connect back to SQL
@@ -570,15 +476,7 @@ $pollingInfo['totalPolled'] = $totalPolled;
 if($TEST_MODE) {
 	echo "Total Nodes polled: " . $totalPolled . "\n";
 }
-	//total nodes POLLED that returned good data minus ones that have no location set
-//	if ($USE_SQL) {
-//		$noLocationQueryString = "select count(*) as 'count' from node_info where lat is NULL or lat = '' or lon is NULL or lon = ''";
-//		$noLocations = wxc_getMySql($noLocationQueryString);
-//		$noLocations = $noLocations['count'];
-//		$mapTotal = $totalPolled - $noLocations;
-//		echo "Nodes with no location: " . $noLocations . "\n";
-//		echo "Total that can be shown on a map: " . $mapTotal . "\n";
-//	}else if ($USER_SETTINGS['node_polling_parallel']) {
+
 	$fCount = 0;
 	$f = $USER_SETTINGS['noLocFile'];
 	$h = fopen($f, "r");
