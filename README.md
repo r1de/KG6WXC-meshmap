@@ -31,7 +31,7 @@ Enter the directory `KG6WXC-meshmap` and run `./pollingScript.php --test-mode-wi
 
 SQLite is not fully working yet, don't try to use it.  
   
-Plz contact KG6WXC for help if you wish to help test this.  
+Plz contact [KG6WXC](mailto:kg6wxc@gmail.com?subject=MeshMap%20Help) for help if you wish to help test this or have questions.  
   
 Any help is appreciated! 
   
