@@ -29,7 +29,8 @@ Copy `settings/user-settings.ini-default` to `settings/user-settings.ini` and ed
 
 Manually run `pollingScript.php --test-mode-with-sql` to make sure everything is setup properly and you get no errors.
 
-To run automatically use cron (this example will poll every 30 min): `*/30 * * * * /home/kg6wxc/KG6WXC-meshmap/pollingScript.php`
+To run automatically use cron (this example will poll every 30 min):  
+`*/30 * * * * /home/kg6wxc/KG6WXC-meshmap/pollingScript.php`
 
 SQLite is not fully working yet, don't try to use it.  
   
