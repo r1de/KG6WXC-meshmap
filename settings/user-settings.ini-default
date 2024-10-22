@@ -119,19 +119,18 @@ mapContact = ""
 expire_old_nodes = "true"
 node_expire_interval = "30"
 
-;;Polling output and error files
+;;Local Webpage Data Files Directory
+;This is where the polling script will save the java files for the webpage.
+;It should be the same "data" directory where the webpage files were copied to.
+;USE A FULL PATH! ie: "/var/www/html/meshmap/data"
 ;---------------------------------------------------------------
-outputFile = "./logs/polling_output.log"
-errFile = "./logs/polling_errors.log"
-noLocFile = "./logs/no_location.log"
+webpageDataDir = "/var/www/html/meshmap/data"
 
 ;TODO: document these new settings
 uploadToCloud = false
-cloudSSHKeyFile = "/username/.ssh/id_rsa"
+cloudSSHKeyFile = "/home/username/.ssh/id_rsa"
 cloudServer['ExampleName'] = "user@host:directory"
 cloudServer['ExampleName2'] = "user@host:directory"
-
-webpageDataDir = ""
 
 mapTileServers['Topographic'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
 mapTileServers['Street-default'] = "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

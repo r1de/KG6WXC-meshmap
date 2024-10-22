@@ -1,6 +1,6 @@
 <?php
-function outputToFile($results) {
-	$logFile = fopen($GLOBALS['USER_SETTINGS']['outputFile'], "a");
+function outputToFile($results, $logFilePath) {
+	$logFile = fopen($logFilePath, "a");
 	if(is_array($results)) {
 		fwrite($logFile, "Name: " . wxc_addColor($results['node'], "purple") . "\n");
 		fwrite($logFile, "MAC Address: ");
@@ -237,5 +237,6 @@ function outputToFile($results) {
 		}
 	}
 	fwrite($logFile, "\n");
+	fclose($logFile);
 } //<- end output to file
 ?>

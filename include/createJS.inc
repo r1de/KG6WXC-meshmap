@@ -6,12 +6,13 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 //	$topology_info_result = mysqli_query($sql_connection, "SELECT * FROM topology") or die("Could not run topology query.");
 
 	$noRFDevices = array();
+	$superNodes = array();
 	$nineDevices = array();
 	$twoDevices = array();
 	$threeDevices = array();
 	$fiveDevices = array();
 
-	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE meshRF = 'off' or channel = 'none'") or die("Could not run node info query.");
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE mesh_supernode = 'false' and (meshRF = 'off' or channel = 'none')") or die("Could not run node info query.");
 	if(mysqli_num_rows($q)) {
 		while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
 			foreach($row as $k => $v) {
@@ -34,6 +35,30 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 			$noRFDevices[] = $row;
 		}
 	}
+
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE mesh_supernode = 'true'") or die("Could not run node info query.");
+		if(mysqli_num_rows($q)) {
+			while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
+				foreach($row as $k => $v) {
+					if($k === "loadavg") {
+						$loadavg = array();
+						$loadavg = @unserialize($v);
+						$row[$k] = $loadavg;
+					}
+					if($k === "services") {
+						$services = array();
+						$services = @unserialize($v);
+						$row[$k] = $services;
+					}
+					if($k === "link_info") {
+						$link_info = array();
+						$link_info = @unserialize($v);
+						$row[$k] = $link_info;
+					}
+				}
+				$superNodes[] = $row;
+			}
+		}
 
 	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE board_id = '0xe009' or board_id = '0xe1b9' or board_id = '0xe239'") or die("Could not run node info query.");
 	if(mysqli_num_rows($q)) {
@@ -133,6 +158,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 
 	$allDevices = array();
 	$allDevices['noRF'] = $noRFDevices;
+	$allDevices['supernode'] = $superNodes;
 	$allDevices['900'] = $nineDevices;
 	$allDevices['2ghz'] = $twoDevices;
 	$allDevices['3ghz'] = $threeDevices;

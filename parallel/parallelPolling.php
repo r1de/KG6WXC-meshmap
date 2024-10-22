@@ -9,7 +9,8 @@ if (PHP_SAPI !== 'cli') {
         <p style='color: red;'>command line</p>!</strong>
         <br>exiting...");
 }
-$INCLUDE_DIR = ".";
+$INCLUDE_DIR = dirname(__DIR__, 1);
+//$INCLUDE_DIR = dirname(__FILE__, 1);
 //$INCLUDE_DIR = "..";
 //get required php files
 require $INCLUDE_DIR . "/include/mysqlFunctions.inc";
@@ -37,7 +38,8 @@ $USER_SETTINGS = array_merge($DEFAULT_USER_SETTINGS, $USER_SETTINGS);
 $GLOBALS['USER_SETTINGS']['current_stable_fw_version'] = trim(fgets(fopen($INCLUDE_DIR . "/logs/latest_versions.txt", "r")));
 
 //open the error file to write polling ERRORS to
-$err_log = fopen($USER_SETTINGS['errFile'], "a");
+$err_log = fopen($INCLUDE_DIR . "/logs/polling_errors.log", "a");
+//. $USER_SETTINGS['errFile'], "a");
 
 $USE_SQL = 1;
 
@@ -110,7 +112,8 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 			if (empty($v)) {
 				$noLocCount = 0;
 				if ($k == 'lat' || $k == 'lon' && $noLocCount) {
-					$no_loc = fopen($USER_SETTINGS['noLocFile'], "a");
+					$no_loc = fopen($INCLUDE_DIR . "/logs/no_location.log", "a");
+					//$USER_SETTINGS['noLocFile'], "a");
 					fwrite($no_loc, (date("M j G:i:s") . " - " . wxc_addColor("no usable location info from: ", "orange") . $ip . " (" . $sysinfoJson['node'] . ")\n"));
 					$noLocCount++;
 					//$noLocation++;
@@ -143,7 +146,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 	//get the now fixed node info and parse it all out further
 	$deviceInfo = parseSysinfoJson($deviceInfo[$ip], $ip);
 	
-	outputToConsole($deviceInfo); //<-**outputs to log file now**
+	outputToConsole($deviceInfo, $INCLUDE_DIR . "/logs/polling_output.log"); //<-**outputs to log file now**
 	
 	if ($USE_SQL) {
 		//build up the huge SQL query for this device

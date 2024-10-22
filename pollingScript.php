@@ -34,7 +34,7 @@ $mtimeStart = microtime(true);
 * along with The Mesh Mapping System.  If not, see <http://www.gnu.org/licenses/>.
 ************************************/
 
-$INCLUDE_DIR = ".";
+$INCLUDE_DIR = dirname(__FILE__);
 require $INCLUDE_DIR . "/include/pollingFunctions.inc";
 require $INCLUDE_DIR . "/include/mysqlFunctions.inc";
 require $INCLUDE_DIR . "/include/colorizeOutput.inc";
@@ -113,6 +113,7 @@ if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold") . "\n";
 }
 
+//TODO: combine this with above
 if($TEST_MODE) { 
 	echo "Attempting to retrieve network topology from " . $USER_SETTINGS['localnode'] . "... ";
 }
@@ -202,15 +203,17 @@ $TotalToPoll = count($nodeDevices);
 if($TEST_MODE) {
 	echo "Clearing log files... ";
 }
-$logFile = fopen($USER_SETTINGS['outputFile'], "w");
+$logFile = fopen($INCLUDE_DIR . "/logs/polling_output.log", "w");
 fwrite($logFile, "### THIS LOG FILE IS RECREATED EACH TIME THE POLLING SCRIPT RUNS.\n### ANY CHANGES WILL BE LOST.\n");
 fwrite($logFile, "### LAST RUN: " . date("M j G:i:s") . "\n\n");
 fclose($logFile);
-$err_log_file = fopen($USER_SETTINGS['errFile'], "w");
+
+$err_log_file = fopen($INCLUDE_DIR . "/logs/polling_errors.log", "w");
 fwrite($err_log_file, "### THIS LOG FILE IS RECREATED EACH TIME THE POLLING SCRIPT RUNS.\n### ANY CHANGES WILL BE LOST.\n");
 fwrite($err_log_file, "### LAST RUN: " . date("M j G:i:s") . "\n\n");
 fclose($err_log_file);
-$noLoc = fopen($USER_SETTINGS['noLocFile'], "w");
+
+$noLoc = fopen($INCLUDE_DIR . "/logs/no_location.log", "w");
 fwrite($noLoc, "### THIS LOG FILE IS RECREATED EACH TIME THE POLLING SCRIPT RUNS.\n### ANY CHANGES WILL BE LOST.\n");
 fwrite($noLoc, "### LAST RUN: " . date("M j G:i:s") . "\n\n");
 fclose($noLoc);
@@ -286,7 +289,6 @@ if($autoCheckArednVersions) {
 			$dbHandle->exec($sql);
 			$dbHandle->close();
 		}elseif($USER_SETTINGS['SQL_TYPE'] == "mysql") {
-			//TODO: mysql
 			$sql_connection = wxc_connectToMySQL();
 			wxc_putMySql($sql_connection, $sql);
 			mysqli_close($sql_connection);
@@ -331,7 +333,7 @@ if($START_POLLING) {
 			$chunk = $pProcessingChunks[$i];
 			foreach($chunk as $ip => $info) {
 				$ipExtraInfo = escapeshellarg(serialize($info));
-				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " >> " . $USER_SETTINGS['outputFile'] . " & echo $!");
+				$pProcessingPIDS[] = exec("php ". $INCLUDE_DIR . "/parallel/parallelPolling.php " . $ip . " " . $USE_SQL . " >> " . $INCLUDE_DIR . "/logs/polling_output.log & echo $!");
 				$nodeCount++;
 			}
 			while(count($pProcessingPIDS) > $numParallelProcesses) {
@@ -449,7 +451,7 @@ if ($TEST_MODE) {
 }
 	//nodes that returned garbage
 	$fCount = 0;
-	$f = $USER_SETTINGS['errFile'];
+	$f = $INCLUDE_DIR . "/logs/polling_errors.log";
 	$h = fopen($f, "r");
 	while(!feof($h)) {
 		$line = fgets($h);
@@ -460,6 +462,7 @@ if ($TEST_MODE) {
 			$fCount++;
 		}
 	}
+	fclose($h);
 
 $pollingInfo['garbageReturned'] = $fCount;
 if($TEST_MODE) {
@@ -478,7 +481,7 @@ if($TEST_MODE) {
 }
 
 	$fCount = 0;
-	$f = $USER_SETTINGS['noLocFile'];
+	$f = $INCLUDE_DIR . "/logs/no_location.log";
 	$h = fopen($f, "r");
 	while(!feof($h)) {
 		$line = fgets($h);
@@ -489,7 +492,8 @@ if($TEST_MODE) {
 			$fCount++;
 		}
 	}
-	$mapTotal = intval($totalPolled) - intval($fCount);
+	fclose($h);
+$mapTotal = intval($totalPolled) - intval($fCount);
 $pollingInfo['noLocation'] = $fCount;
 $pollingInfo['mappableNodes'] = $mapTotal;
 if($TEST_MODE) {
