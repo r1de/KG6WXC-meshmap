@@ -8,9 +8,30 @@ You will _not_ see a map webpage from this, it is only the part that populates t
 Webpage code is here:  
 https://github.com/r1de/KG6WXC-meshmap-webpage  
   
+## REQUIREMENTS
+- **php**
+- **php-mysqli**
+- **php-curl**
+- **mariadb-server**
+
 If you want to run this, the MySQL/MariaDB database will need to be setup before hand.  
-SQLite is not fully working yet.  
-Plz contact KG6WXC for help if you wish to help test this.  
+If you had the previous version of MeshMap, update the database from the new sql file:  
+`sudo mysql -D node_map < meshmap_db_import.sql`  
+
+If you were not running the previous version setup the SQL database like this _and then_ run the above command to import the sql file:  
+> `sudo mysql`  
+> `CREATE DATABASE node_map;`  
+> `CREATE USER 'mesh-map'@'localhost' IDENTIFIED BY 'password';`  
+> `GRANT ALL PRIVILEGES on node_map.* TO 'mesh-map'@'localhost';`  
+> `FLUSH PRIVILEGES;`  
+
+Copy `settings/user-settings.ini-default` to `settings/user-settings.ini` and edit for your site.  
+
+Enter the directory `KG6WXC-meshmap` and run `./pollingScript.php --test-mode-with-sql` to make sure everything is setup properly and you get no errors.
+
+SQLite is not fully working yet, don't try to use it.  
+  
+Plz contact [KG6WXC](mailto:kg6wxc@gmail.com?subject=MeshMap%20Help) for help if you wish to help test this or have questions.  
   
 Any help is appreciated! 
   
