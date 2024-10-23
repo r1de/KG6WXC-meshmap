@@ -121,18 +121,23 @@ if($TEST_MODE) {
 //try the new way (any firmware after 10-17-2024)
 $allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json?topology=1");
 //if that doesn't work try the old way (pre 10-17-2024)
-if (empty($allMeshNodes)) {
+if (!strpos($allMeshNodes, "topology")) {
+	$allMeshNodes = "";
 	$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
 	if(empty($allMeshNodes)) {
 		//the dang node did not return anything, they do this sometimes, try again after a 10 seconds
+		if($TEST_MODE) {
+			echo "\nTrying again after 10 seconds... ";
+		}
 		sleep(10);
 		//try the new way (any firmware after 10-17-2024)
 		$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json?topology=1");
 		//if that doesn't work try the old way (pre 10-17-2024)
-		if (empty($allMeshNodes)) {
+		if (!strpos($allMeshNodes, "topology")) {
+			$allMeshNodes = "";
 			$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
 		}
-		if(empty($allMeshNodes)) {
+		if(!strpos($allMeshNodes, "topology") || empty($allMeshNodes)) {
 			//we have failed 2x, just exit, something is wrong
 			exit(wxc_addColor("\nTHERE WAS A PROBLEM ACCESSING THE API ON YOUR LOCALNODE!\n" . error_get_last()['message'] . "\n", "redBold"));
 		}
