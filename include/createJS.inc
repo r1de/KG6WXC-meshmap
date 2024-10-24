@@ -12,7 +12,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 	$threeDevices = array();
 	$fiveDevices = array();
 
-	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE mesh_supernode = 'false' and (meshRF = 'off' or channel = 'none')") or die("Could not run node info query.");
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE mesh_supernode = 'false' and (meshRF = 'off' or channel = 'none') and (lat != '0' || lon != '0')") or die("Could not run node info query.");
 	if(mysqli_num_rows($q)) {
 		while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
 			foreach($row as $k => $v) {
@@ -36,7 +36,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 		}
 	}
 
-	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE mesh_supernode = 'true'") or die("Could not run node info query.");
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE mesh_supernode = 'true' and (lat != '0' || lon != '0')") or die("Could not run node info query.");
 		if(mysqli_num_rows($q)) {
 			while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
 				foreach($row as $k => $v) {
@@ -60,7 +60,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 			}
 		}
 
-	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE board_id = '0xe009' or board_id = '0xe1b9' or board_id = '0xe239'") or die("Could not run node info query.");
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE board_id = '0xe009' or board_id = '0xe1b9' or board_id = '0xe239' and (lat != '0' || lon != '0')") or die("Could not run node info query.");
 	if(mysqli_num_rows($q)) {
 		while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
 			foreach($row as $k => $v) {
@@ -84,7 +84,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 		}
 	}
 
-	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE channel <= 11 and channel != 'none'") or die("Could not run node info query.");
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE channel <= 11 and channel != 'none' and (lat != '0' || lon != '0')") or die("Could not run node info query.");
 	if(mysqli_num_rows($q)) {
 		while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
 			foreach($row as $k => $v) {
@@ -108,7 +108,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 		}
 	}
 
-	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE (channel >= 76 and channel <= 99) or (channel >= 3000)") or die("Could not run node info query.");
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE (channel >= 76 and channel <= 99) or (channel >= 3000) and (lat != '0' || lon != '0')") or die("Could not run node info query.");
 	if(mysqli_num_rows($q)) {
 		while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
 			foreach($row as $k => $v) {
@@ -132,7 +132,7 @@ function createJS($pollingInfo, $mapInfo, $arednVersions) {
 		}
 	}
 
-	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE (channel >= 37 and channel <= 64) or (channel >= 100 and channel <= 184)") or die("Could not run node info query.");
+	$q = mysqli_query($sql_connection, "SELECT * FROM node_info WHERE (channel >= 37 and channel <= 64) or (channel >= 100 and channel <= 184) and (lat != '0' || lon != '0')") or die("Could not run node info query.");
 	if(mysqli_num_rows($q)) {
 		while($row = mysqli_fetch_array($q, MYSQLI_ASSOC)) {
 			foreach($row as $k => $v) {
