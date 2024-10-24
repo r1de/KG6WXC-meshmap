@@ -459,8 +459,9 @@ if ($TEST_MODE) {
 	$h = fopen($f, "r");
 	while(!feof($h)) {
 		$line = fgets($h);
-		if (strpos($line, "#") !== false) {
-			#|| !preg_match('/^#/', $line) || !preg_match('/^\n/', $line)) {
+		if (strpos($line, "#") !== false || empty(trim($line))) {
+			continue;
+			//|| !preg_match('/^#/', $line) || !preg_match('/^\n/', $line)) {
 			//$fCount++;
 		}else {
 			$fCount++;
@@ -489,7 +490,9 @@ if($TEST_MODE) {
 	$h = fopen($f, "r");
 	while(!feof($h)) {
 		$line = fgets($h);
-		if (strpos($line, "#") !== false) { // || strpos($line, "\n") !== false) {
+		if (strpos($line, "#") !== false || empty(trim($line))) { 
+			continue;
+// || strpos($line, "\n") !== false) {
 //		if (!preg_match('/^#/', $line) || !preg_match('/^\n/', $line)) {
 			//$fCount++;
 		}else {
