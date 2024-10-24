@@ -210,17 +210,17 @@ if($TEST_MODE) {
 }
 $logFile = fopen($INCLUDE_DIR . "/logs/polling_output.log", "w");
 fwrite($logFile, "### THIS LOG FILE IS RECREATED EACH TIME THE POLLING SCRIPT RUNS.\n### ANY CHANGES WILL BE LOST.\n");
-fwrite($logFile, "### LAST RUN: " . date("M j G:i:s") . "\n\n");
+fwrite($logFile, "### LAST RUN: " . date("M j G:i:s T (P)") . "\n\n");
 fclose($logFile);
 
 $err_log_file = fopen($INCLUDE_DIR . "/logs/polling_errors.log", "w");
 fwrite($err_log_file, "### THIS LOG FILE IS RECREATED EACH TIME THE POLLING SCRIPT RUNS.\n### ANY CHANGES WILL BE LOST.\n");
-fwrite($err_log_file, "### LAST RUN: " . date("M j G:i:s") . "\n\n");
+fwrite($err_log_file, "### LAST RUN: " . date("M j G:i:s T (P)") . "\n\n");
 fclose($err_log_file);
 
 $noLoc = fopen($INCLUDE_DIR . "/logs/no_location.log", "w");
 fwrite($noLoc, "### THIS LOG FILE IS RECREATED EACH TIME THE POLLING SCRIPT RUNS.\n### ANY CHANGES WILL BE LOST.\n");
-fwrite($noLoc, "### LAST RUN: " . date("M j G:i:s") . "\n\n");
+fwrite($noLoc, "### LAST RUN: " . date("M j G:i:s T (P)") . "\n\n");
 fclose($noLoc);
 if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold") . "\n";
@@ -349,7 +349,7 @@ if($START_POLLING) {
 					$percent = floor(($donePolling / $TotalToPoll) * 100);
 					$numLeft = 100 - $percent;
 					if($TEST_MODE) {
-						printf("\033[26G\033'$percent%% ($donePolling/$TotalToPoll)... ", "", "");
+						printf("\033[26G%u%% (%u/%u)... ", $percent, $donePolling, $TotalToPoll);
 					}
 					//echo $progress;
 					}
@@ -366,8 +366,7 @@ if($START_POLLING) {
 					$percent = floor(($donePolling / $TotalToPoll) * 100);
 					$numLeft = 100 - $percent;
 					if($TEST_MODE) {
-//						printf("\033[0G\033[2K[%'={$percent}s>%-{$numLeft}s] $percent%% - $donePolling/$TotalToPoll", "", "");
-						printf("\033[26G\033'$percent%% ($donePolling/$TotalToPoll)... ", "", "");
+						printf("\033[26G%u%% (%u/%u)... ", $percent, $donePolling, $TotalToPoll);
 					}
 				}
 			}
@@ -429,7 +428,7 @@ foreach($query as $v) {
 					$link_count++;
 					unset($v);
 					if($TEST_MODE) {
-						printf("\033[32G\033'({$link_count})... ", "", "");
+						printf("\033[32G(%u)... ", $link_count);
 					}	
 				}
 			}
