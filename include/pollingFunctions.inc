@@ -287,7 +287,7 @@ function parseSysinfoJson($jsonString, $ip) {
 			} // <-- end $value is_array
 			else {
 				//these values are in the root of the json file (for now)
-				if(isset($value) && $value != '') {
+				if(isset($value) && $value != '' && !is_null($value)) {
 					switch($key) {
 						case "lon":
 							$results['lon'] = $value;
