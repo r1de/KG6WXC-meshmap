@@ -131,7 +131,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 // 						break;
 // 				}
 // 			}
-			if (empty($v)) {
+			if (empty($v) || !isset($sysinfoJson['lat']) || !isset($sysinfoJson['lon'])) {
 				$noLocCount = 0;
 				if ($k == 'lat' || $k == 'lon' && $noLocCount) {
 					$no_loc = fopen($INCLUDE_DIR . "/logs/no_location.log", "a");
