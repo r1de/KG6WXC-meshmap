@@ -10,7 +10,7 @@ https://github.com/r1de/KG6WXC-meshmap-webpage
   
 ## REQUIREMENTS
 - **php**
-- **php-mysqli**
+- **php-mysql**
 - **php-curl**
 - **mariadb-server**
 
