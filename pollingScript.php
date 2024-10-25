@@ -105,6 +105,28 @@ if($TEST_MODE) {
 	echo "Polling " . $USER_SETTINGS['localnode'] . " for some info before starting... ";
 }
 $localInfo = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json");
+if($localInfo == "" || is_null($localInfo)) {
+	if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
+		exit("Could not get map origin node name: No error, just... nothing, null, nada.");
+	}else {
+		$failReason = trim(substr(strrchr(error_get_last()['message'], ":"), 1));
+		//AREDN port 8080 is going away, try new way
+		if($failReason === "Connection refused") {
+			$localInfo = "";
+			$localInfo = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . ":8080/cgi-bin/sysinfo.json");
+			if($localInfo == "" || is_null($localInfo)) {
+				if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
+					exit("Could not get map origin node name: No error, just... nothing, null, nada.");
+				}else {
+					exit("Could not get map origin node name: " . trim(substr(strrchr(error_get_last()['message'], ":"), 1)));
+				}
+			}
+		}else {
+			exit("Could not get map origin node name: " . trim(substr(strrchr(error_get_last()['message'], ":"), 1)));
+		}
+	}
+	
+}
 $localInfo = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $localInfo);
 $localInfo = json_decode($localInfo,true);
 $localNodeName = $localInfo['node'];
@@ -113,7 +135,7 @@ if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold") . "\n";
 }
 
-//TODO: combine this with above
+//TODO: combine this with above check for node name and make into a function...  seriously! This is getting messy again.
 if($TEST_MODE) { 
 	echo "Attempting to retrieve network topology from " . $USER_SETTINGS['localnode'] . "... ";
 }
@@ -123,7 +145,7 @@ $allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/c
 //if that doesn't work try the old way (pre 10-17-2024)
 if (!strpos($allMeshNodes, "topology")) {
 	$allMeshNodes = "";
-	$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
+	$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . ":8080/cgi-bin/api?mesh=topology");
 	if(empty($allMeshNodes)) {
 		//the dang node did not return anything, they do this sometimes, try again after a 10 seconds
 		if($TEST_MODE) {
@@ -135,7 +157,7 @@ if (!strpos($allMeshNodes, "topology")) {
 		//if that doesn't work try the old way (pre 10-17-2024)
 		if (!strpos($allMeshNodes, "topology")) {
 			$allMeshNodes = "";
-			$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/api?mesh=topology");
+			$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . ":8080/cgi-bin/api?mesh=topology");
 		}
 		if(!strpos($allMeshNodes, "topology") || empty($allMeshNodes)) {
 			//we have failed 2x, just exit, something is wrong

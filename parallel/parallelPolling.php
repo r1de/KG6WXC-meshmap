@@ -77,12 +77,34 @@ $sysinfoJson = @file_get_contents("http://" . $ip . ":8080/cgi-bin/sysinfo.json?
 if($sysinfoJson == "" || is_null($sysinfoJson)) {
 	if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
 		$failReason = "No error, just... nothing, null, nada.";
+		fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
+				"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+		exit();
 	}else {
 		$failReason = trim(substr(strrchr(error_get_last()['message'], ":"), 1));
-	}
-	fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
-			"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
-	exit();
+		//AREDN port 8080 is going away, try new way
+		if($failReason === "Connection refused") {
+			$sysinfoJson = "";
+			$sysinfoJson = @file_get_contents("http://" . $ip . "/cgi-bin/sysinfo.json?link_info=1&services_local=1");
+			if($sysinfoJson == "" || is_null($sysinfoJson)) {
+				if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
+					$failReason = "No error, just... nothing, null, nada.";
+					fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
+							"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+					exit();
+				}else {
+					$failReason = trim(substr(strrchr(error_get_last()['message'], ":"), 1));
+					fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
+							"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+					exit();
+				}
+			}
+		}else {
+			fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
+					"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+			exit();
+		}
+	}	
 }else {
 	//get rid of funny characters in the json string.
 	//usually caused by special characters in the node descriptions
