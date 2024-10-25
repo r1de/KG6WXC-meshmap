@@ -400,7 +400,7 @@ $query = wxc_getMysqlFetchAll("select node from node_info");
 foreach($query as $v) {
 	$node = $v['node'];
 
-	$query = "SELECT node, lat, lon, link_info from node_info where node like '" . $v['node'] . "'";
+	$query = "SELECT node, lat, lon, link_info from node_info where node like '" . $v['node'] . "' and (lat != '0' || lon != '0')";
 	$q_results = wxc_getMySql($query);
 	if(isset($q_results['link_info'])) {
 		$links = unserialize($q_results['link_info']);
@@ -408,7 +408,7 @@ foreach($query as $v) {
 
 	if(!empty($links)) {
 		foreach($links as $k => $v){
-			$query = "SELECT lat, lon from node_info where wlan_ip = '" . $k  . "'";
+			$query = "SELECT lat, lon from node_info where wlan_ip = '" . $k  . "' and (lat != '0' || lon != '0')";
 			$link_coords = wxc_getMySql($query);
 	
 			if(isset($q_results['lat']) && isset($q_results['lon']) && isset($link_coords['lat']) && isset($link_coords['lon'])) {
