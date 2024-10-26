@@ -77,8 +77,8 @@ $sysinfoJson = @file_get_contents("http://" . $ip . ":8080/cgi-bin/sysinfo.json?
 if($sysinfoJson == "" || is_null($sysinfoJson)) {
 	if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
 		$failReason = "No error, just... nothing, null, nada.";
-		fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
-				"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+		fwrite($err_log, (date("M j G:i:s") . " : " . wxc_addColor("sysinfo.json was not returned", "red") . " : " . $ip . " (" . gethostbyaddr($ip) . ")" .
+				"Reason : " . wxc_addColor($failReason, "redBold") . "\n"));
 		exit();
 	}else {
 		$failReason = trim(substr(strrchr(error_get_last()['message'], ":"), 1));
@@ -89,19 +89,19 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 			if($sysinfoJson == "" || is_null($sysinfoJson)) {
 				if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
 					$failReason = "No error, just... nothing, null, nada.";
-					fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
-							"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+					fwrite($err_log, (date("M j G:i:s") . " : " . wxc_addColor("sysinfo.json was not returned", "red") . " : " . $ip . " (" . gethostbyaddr($ip) . ")" .
+							" : " . wxc_addColor($failReason, "redBold") . "\n"));
 					exit();
 				}else {
 					$failReason = trim(substr(strrchr(error_get_last()['message'], ":"), 1));
-					fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
-							"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+					fwrite($err_log, (date("M j G:i:s") . " : " . wxc_addColor("sysinfo.json was not returned", "red") . " : " . $ip . " (" . gethostbyaddr($ip) . ")" .
+							" : " . wxc_addColor($failReason, "redBold") . "\n"));
 					exit();
 				}
 			}
 		}else {
-			fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not returned from: ", "red") . $ip . " (" . gethostbyaddr($ip) . ") " .
-					"Reason: " . wxc_addColor($failReason, "redBold") . "\n"));
+			fwrite($err_log, (date("M j G:i:s") . " : " . wxc_addColor("sysinfo.json was not returned", "red") . " : " . $ip . " (" . gethostbyaddr($ip) . ")" .
+					" : " . wxc_addColor($failReason, "redBold") . "\n"));
 			exit();
 		}
 	}	
@@ -136,7 +136,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 				if ($k == 'lat' || $k == 'lon' && $noLocCount) {
 					$no_loc = fopen($INCLUDE_DIR . "/logs/no_location.log", "a");
 					//$USER_SETTINGS['noLocFile'], "a");
-					fwrite($no_loc, (date("M j G:i:s") . " - " . wxc_addColor("no usable location info from: ", "orange") . $ip . " (" . $sysinfoJson['node'] . ")\n"));
+					fwrite($no_loc, (date("M j G:i:s") . " : " . wxc_addColor("no usable location info", "orange") . " : " . $ip . " (" . $sysinfoJson['node'] . ") : Location Info Not Found!\n"));
 					$noLocCount++;
 					//$noLocation++;
 					fclose($no_loc);
@@ -159,7 +159,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 		unset($k);
 		unset($v);
 	} else {
-		fwrite($err_log, (date("M j G:i:s") . wxc_addColor(" - sysinfo.json was not parsed correctly from: ", "red") . $ip . " - JSON_ERR_NUM: " . wxc_addColor(json_last_error(), "red") . "\n"));
+		fwrite($err_log, (date("M j G:i:s") . " : " . wxc_addColor("sysinfo.json was not parsed correctly", "red") . " : " . $ip . " : JSON_ERR_NUM: " . wxc_addColor(json_last_error(), "red") . "\n"));
 		exit();
 	}
 
