@@ -107,7 +107,7 @@ if($TEST_MODE) {
 $localInfo = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json");
 if($localInfo == "" || is_null($localInfo)) {
 	if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
-		exit("Could not get map origin node name: No error, just... nothing, null, nada.");
+		exit("Could not get map origin node name: No error, just... nothing, null, nada.\n");
 	}else {
 		$failReason = trim(substr(strrchr(error_get_last()['message'], ":"), 1));
 		//AREDN port 8080 is going away, try new way
@@ -116,13 +116,13 @@ if($localInfo == "" || is_null($localInfo)) {
 			$localInfo = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . ":8080/cgi-bin/sysinfo.json");
 			if($localInfo == "" || is_null($localInfo)) {
 				if(!isset(error_get_last()['message']) || is_null(error_get_last()['message']) || error_get_last()['message'] == "") {
-					exit("Could not get map origin node name: No error, just... nothing, null, nada.");
+					exit("Could not get map origin node name: No error, just... nothing, null, nada.\n");
 				}else {
-					exit("Could not get map origin node name: " . trim(substr(strrchr(error_get_last()['message'], ":"), 1)));
+					exit("Could not get map origin node name: " . trim(substr(strrchr(error_get_last()['message'], ":"), 1)) . "\n");
 				}
 			}
 		}else {
-			exit("Could not get map origin node name: " . trim(substr(strrchr(error_get_last()['message'], ":"), 1)));
+			exit("Could not get map origin node name: " . trim(substr(strrchr(error_get_last()['message'], ":"), 1)) . "\n");
 		}
 	}
 	
