@@ -150,7 +150,9 @@ function parseSysinfoJson($jsonString, $ip) {
 									$results['wifi_mac_address'] = $value2['mac'];
 									break;
 								case "br-lan":
-									$results['lan_ip'] = $value2['ip'];
+									if(isset($value2['ip'])) {
+										$results['lan_ip'] = $value2['ip'];
+									}
 									break;
 							}
 							if(isset($value2['ip']) && $value2['ip'] != "none" && !$results['eth3975']) {
