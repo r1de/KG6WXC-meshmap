@@ -294,7 +294,7 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 				escapeshellarg(serialize($info['link_info'])) . ")";
 		wxc_putMySql($sql_connection, $sql);
 		$count++;
-		printf("\033[45G%u... ", $count);
+		printf("\033[46G(%u) ", $count);
 	}
 	mysqli_close($sql_connection);
 }
