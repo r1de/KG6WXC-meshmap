@@ -1,7 +1,7 @@
 <?php
 function createNodeReportJSON($sql_connection, $nodeReportDataFile) {
 	$sql_connection = wxc_connectToMySQL();
-	$node_info_result = mysqli_query($sql_connection, "SELECT * FROM node_info where node is not null") or die("Could not run node info query.");
+	$node_info_result = mysqli_query($sql_connection, "SELECT *, concat(lat, ', ', lon) as location FROM node_info where node is not null") or die("Could not run node info query.");
 
 	$allDevices = array();
 
@@ -10,13 +10,8 @@ function createNodeReportJSON($sql_connection, $nodeReportDataFile) {
 			$allDevices['data'][] = $row;
 		}
 	}
-//	$nodeReportDataFile = $USER_SETTINGS['webpageDataDir'] . "/node_report.json";
-//	$nodeReportDataFile = $nodeReportDataFile;
 	$nrfh = fopen($nodeReportDataFile, "w");
 	fwrite($nrfh, json_encode($allDevices));
 	fclose($nrfh);
 }
-//header("Content-Type: application/json");
-//echo "allDevices: " . json_encode($allDevices, JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT) . ";";
-//echo json_encode($allDevices);
 ?>
