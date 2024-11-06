@@ -116,6 +116,9 @@ function parseSysinfoJson($jsonString, $ip) {
 		//hack for USB150 devices
 		$results['eth3975'] = 0;
 		
+		//hack for weird supernodes
+		$br0 = 0;
+
 		//check a couple of things at first
 		if(isset($jsonString['meshrf']['status']) && $jsonString['meshrf']['status'] == "off") {
 			$results['meshRF'] = "off";
@@ -155,8 +158,12 @@ function parseSysinfoJson($jsonString, $ip) {
 									}
 									break;
 							}
-							if(isset($value2['ip']) && $value2['ip'] != "none" && !$results['eth3975']) {
+							if(isset($value2['ip']) && $value2['ip'] != "none" && !$results['eth3975'] && !$br0) {
 								switch($value2['name']) {
+									case "br0":
+										$results['wlan_ip'] = $value2['ip'];
+										$br0 = 1;
+										break;
 									case $results['wlanInf']:
 										$results['wlan_ip'] = $value2['ip'];
 										break;
@@ -347,6 +354,16 @@ function parseSysinfoJson($jsonString, $ip) {
 		$results =  "array not sent to polling function";
 		return $results;
 	}
+}
+
+function url_get_contents($url) {
+	$curlHandle = curl_init();
+	curl_setopt($curlHandle, CURLOPT_URL, $url);
+	curl_setopt($curlHandle, CURLOPT_CONNECTTIMEOUT, 30);
+	curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
+	$out = curl_exec($curlHandle);
+	curl_close($curlHandle);
+	return $out;
 }
 function parallelPolling($func, array $arr, $procs=5) {
 	$chunks = array_chunk($arr, ceil((count($arr)/$procs)));

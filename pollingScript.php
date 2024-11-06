@@ -9,7 +9,7 @@ if (PHP_SAPI !== 'cli') {
         <br>exiting...");
 }
 //get start time
-$mtimeStart = microtime(true);
+$mtimeOverallStart = microtime(true);
 
 /************************************
 * New polling script for meshmap apr 2021-2024 - kg6wxc
@@ -141,7 +141,8 @@ if($TEST_MODE) {
 }
 //attempt to get network topology from AREDN API
 //try the new way (any firmware after 10-17-2024)
-$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json?topology=1");
+$allMeshNodes = @url_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json?topology=1");
+//$allMeshNodes = @file_get_contents("http://" . $USER_SETTINGS['localnode'] . "/cgi-bin/sysinfo.json?topology=1");
 //if that doesn't work try the old way (pre 10-17-2024)
 if (!strpos($allMeshNodes, "topology")) {
 	$allMeshNodes = "";
@@ -264,6 +265,10 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "sqlite") {
 	}else {
 		$dbHandle = new SQLite3($INCLUDE_DIR . "/sqlite3_db/mesh-map.sqlite");
 	}
+	if($TEST_MODE) {
+		echo wxc_addColor("Done!", "greenBold") . "\n";
+		echo "Updating found IP's and link info into DB... ";
+	}
 	foreach($nodeDevices as $wlan_ip => $info) {
 		$sql = "REPLACE INTO 'node_info' ('wlan_ip', 'hopsAway', 'link_info') VALUES('" .
 				$wlan_ip . "', " .
@@ -275,7 +280,11 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "sqlite") {
 }
 if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 	$sql_connection = wxc_connectToMySQL();
-	//do stuff here
+	if($TEST_MODE) {
+		echo wxc_addColor("Done!", "greenBold") . "\n";
+		echo "Updating found IP's and link info into DB... ";
+	}
+	$count = 0;
 	foreach($nodeDevices as $wlan_ip => $info) {
 		$sql = "INSERT INTO node_info (wlan_ip, hopsAway, link_info) VALUES ('" .
 				$wlan_ip . "', " . $info['hopsAway'] . ", " .
@@ -284,6 +293,8 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 				"link_info = " . escapeshellarg(serialize($info['link_info']));
 				escapeshellarg(serialize($info['link_info'])) . ")";
 		wxc_putMySql($sql_connection, $sql);
+		$count++;
+		printf("\033[45G%u... ", $count);
 	}
 	mysqli_close($sql_connection);
 }
@@ -340,6 +351,8 @@ $sqlite3_db = "";
 $nodeCount = 0;
 
 $START_POLLING = 1;
+
+$mtimePollingStart = microtime(true);
 
 //lets go polling!
 if($START_POLLING) {
@@ -398,6 +411,8 @@ if($START_POLLING) {
 		}
 	}
 }
+$mtimePollingEnd = microtime(true);
+$totalPollingTime = $mtimePollingEnd-$mtimePollingStart;
 
 //connect back to SQL
 $sql_connection = wxc_connectToMySQL();
@@ -533,13 +548,15 @@ $pollingInfo['mappableLinks'] = $link_count;
 if($TEST_MODE) {
 	echo "Links found that can be mapped: " . $link_count . "\n";
 }
-	//total time taken to run the polling
-	$mtimeEnd = microtime(true);
-	$totalTime = $mtimeEnd-$mtimeStart;
-$pollingInfo['pollingTimeSec'] = round($totalTime, 2);
+	//total time taken to run the script
+	$mtimeOverallEnd = microtime(true);
+	$totalTime = $mtimeOverallEnd-$mtimeOverallStart;
+$pollingInfo['pollingTimeSec'] = round($totalPollingTime, 2);
+// add this later:  $pollingInfo['scriptTimeSec'] = round($totalTime, 2);
 if($TEST_MODE) {
 	//display how long it took to poll all the nodes
-	echo "Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n\n";
+	echo "Total Polling Time Elapsed: " . round($totalPollingTime, 2) . " seconds ( " . round($totalPollingTime/60, 2) . " minutes ).\n";
+	echo "Total Script Time Elapsed: " . round($totalTime, 2) . " seconds ( " . round($totalTime/60, 2) . " minutes ).\n\n";
 }
 
 $q = "INSERT INTO map_info (id, ";
@@ -597,19 +614,23 @@ if($TEST_MODE) {
 //upload the js and json file to another server via SSH
 //must be able to login via SSH key with no password for this to work.
 if($USER_SETTINGS['uploadToCloud']) {
+	if($TEST_MODE) {
+		echo "Uploading map data files... ";
+	}
 	foreach($USER_SETTINGS['cloudServer'] as $k => $v) {
 		if(str_contains($k, "Example")) {
 			continue;
 		}
-		if($TEST_MODE) {
-			echo "Uploading map data files to the 'cloud' via SSH to: " . $k  . "... ";
-		}
-		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $v . "/map_data.js");
-		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $node_report_data_json . " " . $v . "/node_report_data.json");
+		
+		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $v . "/map_data.js >> /dev/null 2>&1");
+		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $node_report_data_json . " " . $v . "/node_report_data.json >> /dev/null 2>&1");
 		if($TEST_MODE) {
 			echo wxc_addColor("Done!", "greenBold");
-			echo "\n";
+			echo " ";
 		}
+	}
+	if($TEST_MODE) {
+		echo "\n";
 	}
 }
 ?>
