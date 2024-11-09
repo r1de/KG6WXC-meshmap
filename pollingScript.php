@@ -195,10 +195,13 @@ if($TEST_MODE) {
 	echo "Building list of node IP addresses and some link info... ";
 }
 $nodeDevices = [];
+$currentlyFoundDevices = [];
 $MaxNumHops = 0;
 
 foreach($topoInfo as $link) {
 	$nodeDevices[$link['lastHopIP']] = [];
+	$currentlyFoundDevices[] = $link['lastHopIP'];
+	$currentlyFoundDevices = array_unique($currentlyFoundDevices);
 	$nodeDevices[$link['lastHopIP']]['hopsAway'] = $link['hops'];
 	if(intval($link['hops']) > $MaxNumHops) {
 		$MaxNumHops = intval($link['hops']);
@@ -294,13 +297,43 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 				escapeshellarg(serialize($info['link_info'])) . ")";
 		wxc_putMySql($sql_connection, $sql);
 		$count++;
-		printf("\033[46G(%u) ", $count);
+		if($TEST_MODE) {
+			printf("\033[46G(%u) ", $count);
+		}
+	}
+	if($TEST_MODE) {
+		echo wxc_addColor("Done!", "greenBold") . "\n";
+		echo "Clearing links from not currently found devices... ";
+	}
+	//find devices that are in the DB, but not currently in the network topology
+	//they be off, unable to be reached, temporary mobile devices or whatever.
+	//compare those to the currently found devices and remove the links from the non-current devices,
+	//but do not remove the device itself.
+	
+	$sql = "SELECT wlan_ip from node_info";
+	$currentDevicesInDB = wxc_getMysqlFetchAll($sql);
+	foreach($currentDevicesInDB as $k => $v) {
+		$currentDevicesInDB[$k] = $v['wlan_ip'];
+	}
+	$devicesNotCurrent = array_diff($currentDevicesInDB, $currentlyFoundDevices);
+	$link_info = serialize([]);
+	$count = 0;
+	foreach($devicesNotCurrent as $v) {
+			if(!empty($v)) {
+			$sql = "UPDATE node_info SET link_info = '". $link_info . "' WHERE wlan_ip = '" . $v . "'";
+			wxc_putMySql($sql_connection, $sql);
+			$count++;
+			if($TEST_MODE) {
+				printf("\033[52G(%u) ", $count);
+			}
+		}
+	}
+	if($TEST_MODE) {
+		echo wxc_addColor("Done!", "greenBold") . "\n";
 	}
 	mysqli_close($sql_connection);
 }
-if($TEST_MODE) {
-	echo wxc_addColor("Done!", "greenBold") . "\n";
-}
+
 
 
 //TODO: move to settings

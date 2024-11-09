@@ -161,9 +161,13 @@ function parseSysinfoJson($jsonString, $ip) {
 							if(isset($value2['ip']) && $value2['ip'] != "none" && !$results['eth3975'] && !$br0) {
 								switch($value2['name']) {
 									case "br0":
+										if(str_starts_with($value2['ip'], "10.")) {
 										$results['wlan_ip'] = $value2['ip'];
 										$br0 = 1;
 										break;
+										}else {
+											break;
+										}
 									case $results['wlanInf']:
 										$results['wlan_ip'] = $value2['ip'];
 										break;
