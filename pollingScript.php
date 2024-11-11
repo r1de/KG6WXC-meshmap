@@ -45,6 +45,8 @@ require $INCLUDE_DIR . "/include/sqliteStuff.inc";
 require $INCLUDE_DIR . "/include/calcDistanceAndBearing.inc";
 require $INCLUDE_DIR . "/include/createJS.inc";
 require $INCLUDE_DIR . "/include/node_report_data.inc";
+require $INCLUDE_DIR . "/include/error_report_data.inc";
+require $INCLUDE_DIR . "/include/noLocation_report_data.inc";
 
 $USE_SQL = 1;
 $TEST_MODE = 0;
@@ -638,6 +640,8 @@ fclose($fh);
 $node_report_data_json = $USER_SETTINGS['webpageDataDir'] . "/node_report_data.json";
 
 createNodeReportJSON($sql_connection, $node_report_data_json);
+createErrorReportJSON($USER_SETTINGS['webpageDataDir'] . "/error_report.json");
+createNoLocReportJSON($USER_SETTINGS['webpageDataDir'] . "/no_location.json");
 
 if($TEST_MODE) {
 	echo wxc_addColor("Done!", "greenBold");
@@ -657,9 +661,11 @@ if($USER_SETTINGS['uploadToCloud']) {
 		
 		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $mapDataFileName . " " . $v . "/map_data.js >> /dev/null 2>&1");
 		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $node_report_data_json . " " . $v . "/node_report_data.json >> /dev/null 2>&1");
+		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $USER_SETTINGS['webpageDataDir'] . "/error_report.json" . " " . $v . "/error_report_data.json >> /dev/null 2>&1");
+		exec("scp -i " . $USER_SETTINGS['cloudSSHKeyFile'] . " " . $USER_SETTINGS['webpageDataDir'] . "/no_location.json" . " " . $v . "/no_location.json >> /dev/null 2>&1");
 		if($TEST_MODE) {
-			echo wxc_addColor("Done!", "greenBold");
-			echo " ";
+			echo $k . " " . wxc_addColor("Done!", "greenBold");
+			echo " | ";
 		}
 	}
 	if($TEST_MODE) {
