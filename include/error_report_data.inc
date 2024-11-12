@@ -1,6 +1,6 @@
 <?php
 function createErrorReportJSON($errorReportDataFile) {
-	$h = fopen("logs/polling_errors.log", "r");
+	$h = fopen(dirname(__FILE__) . "/../logs/polling_errors.log", "r");
 	$jsonOut = fopen($errorReportDataFile, "w");
 	$lineAr['data'] = array();
 	while(!feof($h)) {

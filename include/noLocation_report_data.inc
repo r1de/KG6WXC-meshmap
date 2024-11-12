@@ -1,6 +1,6 @@
 <?php
 function createNoLocReportJSON($noLocReportDataFile) {
-	$h = fopen("logs/no_location.log", "r");
+	$h = fopen(dirname(__FILE__) . "/../logs/no_location.log", "r");
 	$jsonOut = fopen($noLocReportDataFile, "w");
 	$lineAr['data'] = array();
 	while(!feof($h)) {
