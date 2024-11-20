@@ -19,7 +19,8 @@ https://github.com/r1de/KG6WXC-meshmap-webpage
 - **php-curl**
 - **mariadb-server**
 
-If you want to run this, the MySQL/MariaDB database will need to be setup before hand.  
+If you want to run this, the MariaDB database will need to be setup before hand.  
+  
 If you had the previous version of MeshMap, update the database from the new sql file:  
 `sudo mysql -D node_map < meshmap_db_import.sql`  
 
