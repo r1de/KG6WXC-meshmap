@@ -23,6 +23,11 @@ If you want to run this, the MySQL/MariaDB database will need to be setup before
 If you had the previous version of MeshMap, update the database from the new sql file:  
 `sudo mysql -D node_map < meshmap_db_import.sql`  
 
+For now, updates to the Database will be in the `meshmap_db_update.sql` file.  
+If you have been running this code and you have errors about things missing in the Database, please run the above command with the update file.  
+`sudo mysql -D node_map < meshmap_db_update.sql`  
+*note: this is NOT needed for a new setup.
+
 If you were not running the previous version setup the SQL database like this _and then_ run the above command to import the sql file:  
 > `sudo mysql`  
 > `CREATE DATABASE node_map;`  
