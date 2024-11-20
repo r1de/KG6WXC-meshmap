@@ -1,5 +1,10 @@
 # KG6WXC-meshmap
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![HamRadio](https://img.shields.io/badge/HamRadio-Roger!-green.svg)](https://www.arednmesh.org)
+[![MattermostChat](https://img.shields.io/badge/Chat-Mattermost-blueviolet.svg)](https://mattermost.kg6wxc.net/mesh/channels/meshmap)  
+Automated mapping of [AREDN](https://arednmesh.org) Networks.  
+
 This is the _new_ KG6WXC MeshMap device polling backend.  
 It is _very much_ a work in progress, and is being actively worked on, but it _does_ actually work.  
 Instructions have not been written yet, setup is very similar to the original meshmap.  
