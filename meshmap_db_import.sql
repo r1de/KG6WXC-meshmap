@@ -67,6 +67,7 @@ CREATE TABLE `node_info` (
   `uptime` varchar(50) DEFAULT NULL,
   `loadavg` varchar(128) DEFAULT NULL,
   `model` varchar(50) DEFAULT NULL,
+	`hardware` varchar(50) DEFAULT NULL,
   `firmware_version` varchar(50) DEFAULT NULL,
   `ssid` varchar(50) DEFAULT NULL,
   `channel` varchar(50) DEFAULT NULL,
