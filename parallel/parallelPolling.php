@@ -17,6 +17,7 @@ require $INCLUDE_DIR . "/include/mysqlFunctions.inc";
 require $INCLUDE_DIR . "/include/pollingFunctions.inc";
 require $INCLUDE_DIR . "/include/colorizeOutput.inc";
 require $INCLUDE_DIR . "/include/outputToConsole.inc"; //<-**outputs to log file now**
+require $INCLUDE_DIR . "/include/hardware_lookup.inc";
 
 $api1dot9 = 0;
 $api1dot8 = 0;
@@ -131,9 +132,12 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 // 						break;
 // 				}
 // 			}
-			if (empty($v) || !isset($sysinfoJson['lat']) || !isset($sysinfoJson['lon'])) {
+/*
+			if (empty($v) || !isset($sysinfoJson['lat']) || !isset($sysinfoJson['lon'])
+					|| $sysinfoJson['lat'] == '' || $sysinfoJson['lon'] == '') {
 				$noLocCount = 0;
-				if ($k == 'lat' || $k == 'lon' && $noLocCount) {
+//				if ($k == 'lat' || $k == 'lon' && $noLocCount) {
+				if ($k == 'lat' || $k == 'lon') {
 					$no_loc = fopen($INCLUDE_DIR . "/logs/no_location.log", "a");
 					//$USER_SETTINGS['noLocFile'], "a");
 					fwrite($no_loc, (date("M j G:i:s") . " : " . wxc_addColor("no usable location info", "orange") . " : " . $ip . " (" . $sysinfoJson['node'] . ") : Location Info Not Found!\n"));
@@ -142,6 +146,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 					fclose($no_loc);
 				}
 			}
+*/
 			if($k == 'link_info') {
 				foreach($v as $l => $info) {
 					foreach($info as $x => $y) {
@@ -167,6 +172,17 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 	fclose($err_log);
 	//get the now fixed node info and parse it all out further
 	$deviceInfo = parseSysinfoJson($deviceInfo[$ip], $ip);
+	
+	//find no location
+	//this may catch all of them now.
+	if($deviceInfo['lat'] == 0 || $deviceInfo['lon'] == 0) {
+		$no_loc = fopen($INCLUDE_DIR . "/logs/no_location.log", "a");
+		//$USER_SETTINGS['noLocFile'], "a");
+		fwrite($no_loc, (date("M j G:i:s") . " : " . wxc_addColor("no usable location info", "orange") . " : " . $ip . " (" . $deviceInfo['node'] . ") : Location Info Not Found!\n"));
+		//$noLocCount++;
+		//$noLocation++;
+		fclose($no_loc);
+	}
 	
 	outputToConsole($deviceInfo, $INCLUDE_DIR . "/logs/polling_output.log"); //<-**outputs to log file now**
 	
@@ -196,7 +212,7 @@ if($sysinfoJson == "" || is_null($sysinfoJson)) {
 		
 		//dump device info into the node_info table
 		wxc_putMySql($sql_connection, $sqlQuery);
-
+		
 		//close SQL connection
 		mysqli_close($sql_connection);
 	}else {

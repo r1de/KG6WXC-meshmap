@@ -110,6 +110,7 @@ function parseSysinfoJson($jsonString, $ip) {
 		$results['antBeam'] = 0;
 		$results['antDesc'] = "Not Available";
 		$results['antBuiltin'] = "false";
+		$results['hardware'] = "";
 		
 //		$results['hopsAway'] = $jsonString['hopsAway'];
 		
@@ -130,11 +131,13 @@ function parseSysinfoJson($jsonString, $ip) {
 			//find the local services on the node
 			if($key == "services_local") {
 				$results['services'] = serialize($value); // <-- this is an array that has been serialized!!
+				continue;
 			}
 
 			//serialize link_info from the polled node
 			if($key == "link_info") {
 				$results['link_info'] = serialize($value);
+				continue;
 			}
 			
 			if(is_array($value) && $key != "services_local") { //<- $value is an array
@@ -144,6 +147,7 @@ function parseSysinfoJson($jsonString, $ip) {
 					//find node load averages
 					if($key2 === "loads") {
 						$results['loadavg'] = serialize($value2); // <-- this is an array that has been serialized!!
+						continue;
 					}
 					
 					if($key == "interfaces") {
@@ -196,6 +200,7 @@ function parseSysinfoJson($jsonString, $ip) {
 									case $results['wlanInf']:
 										$results['wifi_mac_address'] = $value2['mac'];
 										$results['wlan_ip'] = $value2['ip'];
+										break;
 								}
 							}
 						}
@@ -282,12 +287,12 @@ function parseSysinfoJson($jsonString, $ip) {
 									$results['node'] = $value2;
 									break;
 								case "lat":
-									if(isset($value2) && $value2 != '') {
+									if(isset($value2) && $value2 != '' && $value2 != " ") {
 										$results['lat'] = $value2;
 									}
 									break;
 								case "lon":
-									if(isset($value2) && $value2 != '') {
+									if(isset($value2) && $value2 != '' && $value2 != " ") {
 										$results['lon'] = $value2;
 									}
 									break;
@@ -300,7 +305,7 @@ function parseSysinfoJson($jsonString, $ip) {
 			} // <-- end $value is_array
 			else {
 				//these values are in the root of the json file (for now)
-				if(isset($value) && $value != '' && !is_null($value)) {
+				if(isset($value) && $value != '' && $value != " " && !is_null($value)) {
 					switch($key) {
 						case "lon":
 							$results['lon'] = $value;
@@ -319,7 +324,7 @@ function parseSysinfoJson($jsonString, $ip) {
 							break;
 						case "hopsAway":
 							$results['hopsAway'] = $value;
-							
+							break;
 							//catch old API entries
 						case "ssid":
 							$results['ssid'] = $value;
@@ -353,6 +358,11 @@ function parseSysinfoJson($jsonString, $ip) {
 			} // <- end $value is *not* array
 			unset($key);
 		}
+		if($results['board_id'] === "0x0000") {
+			$results['hardware'] = findHardware($results['model']);
+		}else {
+			$results['hardware'] = findHardware($results['board_id']);
+		}
 		return $results;
 	}else {
 		$results =  "array not sent to polling function";
@@ -369,6 +379,14 @@ function url_get_contents($url) {
 	curl_close($curlHandle);
 	return $out;
 }
+
+function expiredNodes($sqlConn, $expireDays) {
+//testing	$query = "select wlan_ip from node_info where last_seen <= adddate(now(), interval -" . $expireDays . " hour)";
+	$query = "select wlan_ip from node_info where last_seen <= adddate(now(), interval -" . $expireDays . " day)";
+	$expNodes = wxc_getMysqlFetchAll($query);
+	return $expNodes;
+}
+
 function parallelPolling($func, array $arr, $procs=5) {
 	$chunks = array_chunk($arr, ceil((count($arr)/$procs)));
 	$pid = -1;

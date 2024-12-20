@@ -50,6 +50,7 @@ require $INCLUDE_DIR . "/include/noLocation_report_data.inc";
 
 $USE_SQL = 1;
 $TEST_MODE = 0;
+$START_POLLING = 1;
 
 if (!empty($argv[1])) {
 	switch ($argv[1]) {
@@ -63,7 +64,7 @@ if (!empty($argv[1])) {
 			echo "(this parameter is useful for testing)\n\n";
 			echo "--test-mode-with-sql\tDO access the database AND output to screen\n";
 			echo "(useful to see if everything is working and there are no errors reading/writing to the database)\n\n";
-//			echo "No arguments to this script will run it in \"silent\" mode, good for cron jobs! :)\n";
+			echo "No arguments to this script will run it in \"silent\" mode, good for cron jobs! :)\n";
 			echo "\n";
 			exit();
 	    case "--test-mode-no-sql":
@@ -287,8 +288,31 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 	$sql_connection = wxc_connectToMySQL();
 	if($TEST_MODE) {
 		echo wxc_addColor("Done!", "greenBold") . "\n";
-		echo "Updating found IP's and link info into DB... ";
+		if($USER_SETTINGS['expire_old_nodes']) {
+			echo "Expiring nodes not polled in ". $USER_SETTINGS['node_expire_interval'] . " days... ";
+		}
 	}
+	if($USER_SETTINGS['expire_old_nodes']) {
+		$expNodes = expiredNodes($sql_connection, $USER_SETTINGS['node_expire_interval']);
+		$count = 0;
+		if(!$expNodes) {
+			printf("\033[41G(%u) ", $count);
+		}else {
+			foreach($expNodes as $k => $v) {
+				$q = "delete from node_info where wlan_ip = '" . $v['wlan_ip'] . "'";
+				wxc_putMySql($sql_connection, $q);
+				$count++;
+				if($TEST_MODE) {
+					printf("\033[41G(%u) ", $count);
+				}
+			}
+		}
+		if($TEST_MODE) {
+			echo wxc_addColor("Done!", "greenBold") . "\n";
+			echo "Updating found IP's and link info into DB... ";
+		}
+	}
+
 	$count = 0;
 	foreach($nodeDevices as $wlan_ip => $info) {
 		$sql = "INSERT INTO node_info (wlan_ip, hopsAway, link_info) VALUES ('" .
@@ -308,9 +332,9 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 		echo "Clearing links from not currently found devices... ";
 	}
 	//find devices that are in the DB, but not currently in the network topology
-	//they be off, unable to be reached, temporary mobile devices or whatever.
+	//they may be off, unable to be reached, temporary mobile devices or whatever.
 	//compare those to the currently found devices and remove the links from the non-current devices,
-	//but do not remove the device itself.
+	//but do not remove the device itself, not yet.
 	
 	$sql = "SELECT wlan_ip from node_info";
 	$currentDevicesInDB = wxc_getMysqlFetchAll($sql);
@@ -385,8 +409,6 @@ $sqlite3_db = "";
 
 $nodeCount = 0;
 
-$START_POLLING = 1;
-
 $mtimePollingStart = microtime(true);
 
 //lets go polling!
@@ -451,15 +473,6 @@ $totalPollingTime = $mtimePollingEnd-$mtimePollingStart;
 
 //connect back to SQL
 $sql_connection = wxc_connectToMySQL();
-
-//find the supernodes and treat them as we did our localnode above.
-$superNodes = wxc_getMysqlFetchAll("select wlan_ip from node_info where mesh_supernode = 'true'");
-//foreach($superNodes as $super) {
-
-//	}
-//var_dump($superNodes);
-//exit();
-//TODO
 
 //create the topology info
 if($TEST_MODE) {
