@@ -130,6 +130,14 @@ function parseSysinfoJson($jsonString, $ip) {
 
 			//find the local services on the node
 			if($key == "services_local") {
+				//strip single quote from service names
+				//one station (do far) needs this.
+				//I'm sure we'll need to add to it in the future.
+				foreach($value as $srv => $srvInfo) {
+					if(str_contains($srvInfo['name'], "'")) {
+						$value[$srv]['name'] = str_replace("'", '', $srvInfo['name']);
+					}
+				}
 				$results['services'] = serialize($value); // <-- this is an array that has been serialized!!
 				continue;
 			}
