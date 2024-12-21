@@ -296,7 +296,9 @@ if($USE_SQL && $USER_SETTINGS['SQL_TYPE'] == "mysql") {
 		$expNodes = expiredNodes($sql_connection, $USER_SETTINGS['node_expire_interval']);
 		$count = 0;
 		if(!$expNodes) {
-			printf("\033[41G(%u) ", $count);
+			if($TEST_MODE) {
+				printf("\033[41G(%u) ", $count);
+			}
 		}else {
 			foreach($expNodes as $k => $v) {
 				$q = "delete from node_info where wlan_ip = '" . $v['wlan_ip'] . "'";
