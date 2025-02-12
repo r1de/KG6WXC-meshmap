@@ -5,7 +5,7 @@
 ;
 ;***IMPORTANT***
 ;This file should not be edited directly, please retain it "as is" for future changes.
-;Copy this file to: "user-settings.ini" in this dame directory and make your changes there.
+;Copy this file to: "user-settings.ini" in this same directory and make your changes there.
 ;
 ;This default file is read in first, and your personal settings override these defaults.
 ;
