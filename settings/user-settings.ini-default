@@ -1,56 +1,59 @@
 [user-settings]
 ;-------------------------------------------------------------
-;Please change the below variables for your setup.
+;Default Settings for KG6WXC MeshMap
+;Feb - 2025
 ;
-;For instance, if your on the USA east coast, your "localTimeZone" should be changed to: "America/New_York"
+;***IMPORTANT***
+;This file should not be edited directly, please retain it "as is" for future changes.
+;Copy this file to: "user-settings.ini" in this dame directory and make your changes there.
+;
+;This default file is read in first, and your personal settings override these defaults.
 ;
 ;You want to make your changes in between the quotes, 
+;ie: localnode = "10.x.x.x"
 ;
 ;Each section has comments that should explain what they are for.
 ;-------------------------------------------------------------
 
-
-;;SQL Type
-;meshmap will now use SQLite3 as default
-;change SQL_TYPE to "mysql" to change to a mariaDB/MySQL DB server
-;only sqlite3 and mysql/mariadb are supported, sorry
-SQL_TYPE = "mysql"
-
-;;SQL username, password, database name, table names.
-;ONLY NEED TO CHANGE THESE IF YOU ARE USING A MYSQL SERVER
-;You **must** at least update sql_user, sql_passwd, and sql_server to reflect *your* environment!
-;You probably do not want to (and should not) change the sql_db* entries unless you really know what you are doing!
-;-------------------------------------------------------------
-sql_user = "mesh-map"
-sql_passwd = "mesh-map_sql_user_password"
-sql_server = "localhost"
-sql_db = "node_map"
-sql_db_tbl = "node_info"
-sql_db_tbl_node = "node_info"
-sql_db_tbl_topo = "topology"
-sql_db_tbl_marker = "marker_info"
-
 ;;Your localnode's IP address or hostname
-;The system running the get-map-info.php script should be able to resolve the host name.
+;The system running the Polling script should be able to resolve the host name.
 ;If it cannot, you'll need to change this to an IP address.
 ;Just leave it set at "localnode.local.mesh" unless you need to change it.
 ;--------------------------------------------------------------
 localnode = "localnode.local.mesh"
 
+;;SQL Type
+;meshmap still uses MariaDB as default.
+;SQLite3 support is still planned for the future.
+;Options now are: "mysql" only.
+SQL_TYPE = "mysql"
+
+;;SQL username, password, database name, table names.
+;ONLY NEED TO CHANGE THESE IF YOU ARE USING A MYSQL SERVER
+;The SQL server does not have to be on the system that is running the polling script.
+;You **must** at least update sql_user, sql_passwd, and sql_server to reflect *your* environment!
+;You probably do not want to (and should not) change the sql_db* entries unless you really know what you are doing!
+;-------------------------------------------------------------
+sql_server = "localhost"
+sql_user = "mesh-map"
+sql_passwd = "mesh-map_sql_user_password"
+sql_db = "node_map"
+sql_db_tbl = "node_info"
+
+;;Node expiration intervals
+;after how many *days* do nodes get removed when we have not heard from them?
+;Set expire_old_nodes to "true" to actually expire the old nodes. "false" will not expire any nodes.
+;--------------------------------------------------------------
+expire_old_nodes = "true"
+node_expire_interval = "30"
+
 ;;Current firmware version.
-;(this will have to be edited by hand each time it changes)
-;Sorry, no way around that yet. (Oh! But there is!)
+;This will check the internet for the current aredn versions.
+;"Offline" manual check coming back soon
 ;--------------------------------------------------------------
 AREDN_VERSION_CHECK_URL = "http://downloads.arednmesh.org/afs/www/config.js"
 aredn_firmware_check = "true"
 ;current_stable_fw_version = "3.22.12"
-
-;;Time Zone we're going to be running in.
-;It must be in "PHP Format". Sorry. :)
-;Please see: http://php.net/manual/en/timezones.php
-;If you need to change it, you can find it there.
-;--------------------------------------------------------------
-localTimeZone = "America/Los_Angeles"
 
 ;;Polling is always run in parallel now.
 ;a separate php script is spawned for each node on the network,
@@ -64,7 +67,7 @@ numParallelThreads = "60"
 ;;Map Center Coordinates and starting zoom level
 ;These are the coordinates for the center of the map on the webpage, and the initial Zoom Level.
 ;This will probably take some experimenting to get just right.
-;These values are for Ventura and Santa Barbara Counties in California.
+;These values are for Ventura and Santa Barbara Counties in California, USA.
 ;--------------------------------------------------------------
 map_center_coordinates['lat'] = "34.35"
 map_center_coordinates['lon'] = "-119.6"
@@ -86,54 +89,56 @@ kilometers = false
 ;(z = zoom level, and x,y are x and y coords of the tile)
 ;Most map tile servers (and many programs such as Xastir) conform to this default.
 ;--------------------------------------------------------------
-offlineMapTileDir = "osm_tiles/{z}/{x}/{y}.png"
+;;offlineMapTileDir = "osm_tiles/{z}/{x}/{y}.png"
 
 ;;Internet Map Tile servers you wish to use
 ;These will be using in place of the offline maps when internet access is available
 ;If you wish to add more, just create a new line in the same fashion.
-;ie: inetTileServer['Name of Map'] = "//new.server.name/tiles/blah/blah/{z}/{x}/{y}.png"
+;ie: mapTileServers['Name of Map'] = "//new.server.name/tiles/blah/blah/{z}/{x}/{y}.png"
 ;You could add them to your hearts content! Try not to go overboard. :)
 ;
-;Append the string "-Default" to the name of the map you'd like to have shown by default
+;Append the string "-default" to the name of the map you'd like to have shown by default
 ;
 ;You must include the /{z}/{x}/{y}.png here, but make sure your using the right one
 ;for the server you are using. "/{z}/{x}/{y}.png" is just an example
 ;--------------------------------------------------------------
-inetTileServer['Topographic'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-inetTileServer['Street'] = "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-inetTileServer['Terrain-Default'] = "//stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg"
+mapTileServers['Topographic'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+mapTileServers['Street-default'] = "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+mapTileServers['Satellite'] = "//basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
+
+;;*NOTE*
+;Any any tile server with ".local.mesh" in it's URL will be used
+;when the webpage is accessed from a client that is also on the mesh.
+;This behavior is disabled by default, uncomment and update the URL to use
+;mapTileServers['KG6WXC on AREDN'] = "//kg6wxc-osm.local.mesh/osm_tiles/{z}/{x}/{y}.png"
 
 ;;The Title of the web page, web page logo and the text above the map.
 ;--------------------------------------------------------------
 pageTitle = "KG6WXC MeshMap"
-;pageLogo = "images/MESHMAP_LOGO.svg"
 attribution = "KG6WXC MeshMap"
 mapContact = ""
 
-;;Node expiration intervals
-;after how many *days* do nodes get removed when we have not heard from them?
-;if the same node re-appears after this time it will get automatically removed from the ignore list,
-;and will continue to be updated as normal.
-;Set expire_old_nodes to "true" to actually expire the old nodes. "false" will not expire any nodes.
-;--------------------------------------------------------------
-expire_old_nodes = "true"
-node_expire_interval = "30"
-
 ;;Local Webpage Data Files Directory
 ;This is where the polling script will save the java files for the webpage.
-;It should be the same "data" directory where the webpage files were copied to.
-;USE A FULL PATH! ie: "/var/www/html/meshmap/data"
+;Wherever you copied the webpage files to, there is a "data" directory, use that path.
+;*NOTE*
+;If the webpage will run on a seperate system and use the "Upload To Cloud" feature (below),
+;than this could be any directory that the polling script has write permissions to.
+;
+;USE A FULL PATH! example: "/var/www/html/meshmap/data"
 ;---------------------------------------------------------------
 webpageDataDir = "/var/www/html/meshmap/data"
 
-;TODO: document these new settings
-uploadToCloud = false
-cloudSSHKeyFile = "/home/username/.ssh/id_rsa"
-cloudServer['ExampleName'] = "user@host:directory"
-cloudServer['ExampleName2'] = "user@host:directory"
-
-mapTileServers['Topographic'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-mapTileServers['Street-default'] = "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-mapTileServers['Satellite'] = "//basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
-mapTileServers['KG6WXC on AREDN'] = "//kg6wxc-osm.local.mesh/osm_tiles/{z}/{x}/{y}.png"
-
+;;Used to get the map data out to another system on or off the mesh network.
+;;THIS IS AN ADVANCED FEATURE
+;;You will either understand how to use or not.
+;;I can't explain it all here, there is no room!
+;;**NOTE**
+;This requires ssh access to the remote system
+;AND that you setup an SSH keyfile without a password ON BOTH systems first.
+;If none of that made sense just leave it commented!
+;---------------------------------------------------------------
+;uploadToCloud = false
+;cloudSSHKeyFile = "/home/username/.ssh/id_rsa"
+;cloudServer['ExampleName'] = "user@host:directory"
+;;cloudServer['ExampleName2'] = "user@host:directory"
