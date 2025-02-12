@@ -78,23 +78,13 @@ map_initial_zoom_level = "10"
 ;the map page will then show 1km (1.62mi)
 kilometers = false
 
-;;If you have map tiles or a mesh tile server of your own (or on your mesh network) put it here.
-;these map tiles will be used when there is no internet access available
-;if you use a directory name, it must be relative to the webroot.
-;ie: osm_tiles/{z}/{x}/{y}.png
-;
-;You can also use a full domain name here.
-;ie: //kg6wxc-srv.local.mesh/osm_tiles/{z}/{x}/{y}.png
-;
-;(z = zoom level, and x,y are x and y coords of the tile)
-;Most map tile servers (and many programs such as Xastir) conform to this default.
-;--------------------------------------------------------------
-;;offlineMapTileDir = "osm_tiles/{z}/{x}/{y}.png"
-
-;;Internet Map Tile servers you wish to use
-;These will be using in place of the offline maps when internet access is available
+;;Map Tile servers you wish to use
 ;If you wish to add more, just create a new line in the same fashion.
 ;ie: mapTileServers['Name of Map'] = "//new.server.name/tiles/blah/blah/{z}/{x}/{y}.png"
+;They can even be directories that contain map tiles in the correct directory structure.
+;if you do use a directory name, it must be relative to the webroot.
+;ie: mapTileServers['osm_tiles/{z}/{x}/{y}.png']
+;
 ;You could add them to your hearts content! Try not to go overboard. :)
 ;
 ;Append the string "-default" to the name of the map you'd like to have shown by default
