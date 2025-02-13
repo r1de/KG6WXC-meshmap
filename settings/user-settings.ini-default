@@ -81,8 +81,11 @@ kilometers = false
 ;;Map Tile servers you wish to use
 ;If you wish to add more, just create a new line in the same fashion.
 ;ie: mapTileServers['Name of Map'] = "//new.server.name/tiles/blah/blah/{z}/{x}/{y}.png"
+;
 ;They can even be directories that contain map tiles in the correct directory structure.
-;if you do use a directory name, it must be relative to the webroot.
+;If you do use a directory name, it must be relative to the webroot.
+;This could be used in an offline state from tiles that have been pre-cached,
+;or downloaded from other programs such as Xastir.
 ;ie: mapTileServers['osm_tiles/{z}/{x}/{y}.png']
 ;
 ;You could add them to your hearts content! Try not to go overboard. :)
@@ -90,15 +93,17 @@ kilometers = false
 ;Append the string "-default" to the name of the map you'd like to have shown by default
 ;
 ;You must include the /{z}/{x}/{y}.png here, but make sure your using the right one
-;for the server you are using. "/{z}/{x}/{y}.png" is just an example
+;for the server you are using.
+;"/{z}/{x}/{y}.png" is just an example but should work for most.
 ;--------------------------------------------------------------
 mapTileServers['Topographic'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
 mapTileServers['Street-default'] = "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 mapTileServers['Satellite'] = "//basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
 
 ;;*NOTE*
-;Any any tile server with ".local.mesh" in it's URL will be used
-;when the webpage is accessed from a client that is also on the mesh.
+;Any any tile server with ".local.mesh" in it's URL will be used in place of the others
+;when the webpage is hosted and accessed from the mesh network.
+;This is an attempt to keep this map working in a total "offline" state.
 ;This behavior is disabled by default, uncomment and update the URL to use
 ;mapTileServers['KG6WXC on AREDN'] = "//kg6wxc-osm.local.mesh/osm_tiles/{z}/{x}/{y}.png"
 
