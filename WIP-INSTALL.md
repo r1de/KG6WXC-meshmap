@@ -24,10 +24,14 @@ Install required libraries and programs (if not already installed):
 - **php-curl**
 - **mariadb-server**
     
-`sudo apt install git php php-mysql php-curl mariadb-server`  
+```
+sudo apt install git php php-mysql php-curl mariadb-server
+```  
 
 Clone the project:  
-`sudo git clone https://github.com/r1de/KG6WXC-meshmap.git`  
+```
+sudo git clone https://github.com/r1de/KG6WXC-meshmap.git
+```  
 Once the cloning operation is complete, the application files will be under a folder called `KG6WXC-meshmap`
 
 >**Hint:** You can also get have it copy to a directory of your choice:  
@@ -35,27 +39,45 @@ Once the cloning operation is complete, the application files will be under a fo
 >`git clone https://github.com/r1de/KG6WXC-meshmap.git .` - copy the files to the _current_ directory.
 
 The MariaDB SQL database and user will need to be created before configuring and running the back end for the first time:  
-`sudo mysql`  
-`CREATE DATABASE node_map;`  
-`CREATE USER 'mesh-map'@'localhost' IDENTIFIED BY 'your_password_here';`  
-`GRANT ALL PRIVILEGES on node_map.* TO 'mesh-map'@'localhost';`  
-`FLUSH PRIVILEGES;`  
-`exit`  
+```
+sudo mysql
+```  
+```
+CREATE DATABASE node_map;
+```  
+```
+CREATE USER 'mesh-map'@'localhost' IDENTIFIED BY 'your_password_here';
+```  
+```
+GRANT ALL PRIVILEGES on node_map.* TO 'mesh-map'@'localhost';
+```  
+```
+FLUSH PRIVILEGES;
+```  
+```
+exit
+```  
 
 Enter the project's cloned directory and import the database configuration:  
-`sudo mysql -D node_map < meshmap_db_import.sql`
+```
+sudo mysql -D node_map < meshmap_db_import.sql
+```
 
 Also, copy the default settings template:  
-`cp settings/user-settings.ini-default settings/user-settings.ini`
+```
+cp settings/user-settings.ini-default settings/user-settings.ini
+```
 >**DO NOT** change the default file, it is used to add new default settings to meshmap.  
 >When and if there are new settings you can always override them in your personal settings file.
 
 Edit the _copied_ template for your site:  
-`nano user-settings.ini`  
+```
+nano settings/user-settings.ini
+```  
 This opens the default settings template file, which needs to be modified for your environment.  
 I won't list all of the parameters here because then you'll be lazy and won't read the file.  
 The file is well-commented and suitably instructional.  
-Modify as required, then save as `user-settings.ini`.
+Modify as required, then save as `settings/user-settings.ini`.
 
 
 </details><details id="bkmrk-setup-for-upgrading-"><summary>Setup for Upgrading an Existing Install</summary>
