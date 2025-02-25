@@ -4,7 +4,7 @@ Project Github: [https://github.com/r1de/KG6WXC-meshmap](https://github.com/r1de
 
 ### Deployment Planning
 
-Despite running an SQL database, this application is very lightweight and doesn't require a standalone VM.  
+Despite running an SQL database, this application is very lightweight and doesn't consume many resources.  
 It's best deployed with stand-alone system or an LXC container (or whatever), it will also run on a Ras-Pi.  
 The amount of backend resources you give it really depends on the size of the network you are going to be polling.  
 A Southern California sized network will work on a Ras-Pi, but it will be slow.  
