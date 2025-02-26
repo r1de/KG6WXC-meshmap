@@ -12,7 +12,7 @@ A Southern California sized network will work on a Ras-Pi, but it will be slow.
 You will *NOT* see a map from this code alone, this only populates the database with info and creates data files for use by the [frontend code](https://github.com/r1de/KG6WXC-meshmap-webpage).
 
 
->*If you're upgrading from the original KG6WXC MeshMap, skip to "[Setup for Upgrading an Existing Install](#setup-for-existing-install)".*
+>*If you're upgrading from the original KG6WXC MeshMap, skip to "[Setup for Upgrading an Existing Install](#bkmrk-setup-for-upgrading-)".*
 
 
 ### 1st Time Setup on Debian-Based System
@@ -91,7 +91,7 @@ sudo mysql -D node_map < meshmap_db_update.sql
 ```
 </details>
 
-<p class="callout warning">**Stop here and switch to the [Front End Setup instructions](http://n7cpz-wiki.local.mesh/books/kg6wxc-mesh-map/page/front-end-setup).** The `pollingScript.php` script relies on the `/var/www/html/meshmap/data` directory existing and will fail unless it's created during the front end setup process.</p>
+<p class="callout warning">**You may want to stop here and switch to the [Front End Setup instructions](http://n7cpz-wiki.local.mesh/books/kg6wxc-mesh-map/page/front-end-setup).** The `pollingScript.php` script relies on the `/var/www/html/meshmap/data` directory existing and will fail unless it's created during the front end setup process.</p>
 
 #### Testing
 
