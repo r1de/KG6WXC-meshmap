@@ -3,6 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HamRadio](https://img.shields.io/badge/HamRadio-Roger!-green.svg)](https://www.arednmesh.org)
 [![MattermostChat](https://img.shields.io/badge/Chat-Mattermost-blueviolet.svg)](https://mattermost.kg6wxc.net/mesh/channels/meshmap)  
+  
 Automated mapping of [AREDN](https://arednmesh.org) Networks.  
 
 This is the _new_ KG6WXC MeshMap device polling backend.
@@ -10,7 +11,12 @@ This is the _new_ KG6WXC MeshMap device polling backend.
 2016-2025 - Eric Satterlee / KG6WXC
 
 Licensed under GPL v 3 and later.  
-[Donations](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=6K5KQYYU34H4U&currency_code=USD&source=url) / Beer Accepted! :-)
+
+[Donations](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=6K5KQYYU34H4U&currency_code=USD&source=url) / Beer Accepted! :-)  
+
+Special thanks and remembrance to Dale, N7QJK (SK) for his help beta testing the original meshmap.  
+
+This README file was contributed by N7CPZ and heavily edited by KG6WXC.  
 
 ## Polling Script (Back End) Setup
 
@@ -19,7 +25,9 @@ Project Github: [https://github.com/r1de/KG6WXC-meshmap](https://github.com/r1de
 ### Deployment Planning
 
 Despite running an SQL database, this application is very lightweight and doesn't consume many resources.  
-It's best deployed with stand-alone system or an LXC container (or whatever), it will also run on a Ras-Pi.  
+It's best deployed in a stand-alone system or an LXC container (or whatever), it will also run on a Ras-Pi. 
+>In theory, it _should_ run even on a Windows system.
+
 The amount of backend resources you give it really depends on the size of the network you are going to be polling.  
 A Southern California sized network will work on a Ras-Pi, but it will be slow.  
 2 CPU cores and 2048 MiB RAM are _more_ than enough to run it smoothly.  
@@ -96,16 +104,17 @@ Modify as required, then save as `settings/user-settings.ini`.
 ---
 
 <details id="bkmrk-setup-for-upgrading-"><summary><strong>Setup for Upgrading an Existing Install</strong></summary>
-#### Setup from existing old MeshMap version
 
-You likely have everything you need already setup.  
-If you have been running the old map and are upgrading to this new version, you will need to update the values in the new configuration file.  
+You likely have everything you need already installed.  
+If you have been running the old map and are upgrading to this new version, you will need to update the values in the new configuration file.
+>If you copy over your existing user-settings file and carefully update it, you could probably re-use it, there are some changes, but not many.
+
 The Database structure has changed in this new version and it will need to be updated, run this command from the meshmap directory:
 
 ```
 sudo mysql -D node_map < meshmap_db_update.sql
 ```
-After that is done, continue with the Front End Setup.
+After that is done, run the polling script in test mode and continue with the Front End Setup.
 
 </details>
 
@@ -114,8 +123,8 @@ After that is done, continue with the Front End Setup.
 **Note:** You may want to stop here and switch to the [Front End Setup instructions](http://n7cpz-wiki.local.mesh/books/kg6wxc-mesh-map/page/front-end-setup).  
 The `pollingScript.php` script uses the `/var/www/html/meshmap/data` directory by default to store the data for the webpage.  
 The script will fail if this directory does not exist.  
-You can use any other directory (with appropriate write permissions, of course) by changing the `webpageDataDir` value in _your_ `user-settings.ini` file.
-Changing the value to use a temporary directory (say, in your home directory) will allow you to run the following test without having to also setup the front end webpage, which can be done later.
+You can use any other directory (with appropriate write permissions, of course) by changing the `webpageDataDir` value in _your_ `user-settings.ini` file.  
+Changing the value to use a temporary directory (say, in your home directory) will allow you to run the following test without having to also setup the front end webpage, which can be done later and you can set the proper directory then.
 
 #### Testing the Polling Script
 
