@@ -34,9 +34,9 @@ sudo git clone https://github.com/r1de/KG6WXC-meshmap.git
 ```  
 Once the cloning operation is complete, the application files will be under a folder called `KG6WXC-meshmap`
 
->**Hint:** You can also get have it copy to a directory of your choice:  
->`git clone https://github.com/r1de/KG6WXC-meshmap.git meshmap` - copy files to a directory called "meshmap".  
->`git clone https://github.com/r1de/KG6WXC-meshmap.git .` - copy the files to the _current_ directory.
+>**Hint:** You can also have `git` clone to a directory of your choice:  
+>`git clone https://github.com/r1de/KG6WXC-meshmap.git meshmap` - use a directory called "meshmap".  
+>`git clone https://github.com/r1de/KG6WXC-meshmap.git .` - use the _current_ directory.
 
 The MariaDB SQL database and user will need to be created before configuring and running the back end for the first time:  
 ```
@@ -79,43 +79,55 @@ I won't list all of the parameters here because then you'll be lazy and won't re
 The file is well-commented and suitably instructional.  
 Modify as required, then save as `settings/user-settings.ini`.
 
+---
 
-</details><details id="bkmrk-setup-for-upgrading-"><summary>Setup for Upgrading an Existing Install</summary>
+<details id="bkmrk-setup-for-upgrading-"><summary><strong>Setup for Upgrading an Existing Install</strong></summary>
+#### Setup from existing old MeshMap version
 
-#### Setup for Existing Install
-
-If you have been running this code and you have errors about things missing in the Database, run the following command with the update file:
+You likely have everything you need already setup.  
+If you have been running the old map and are upgrading to this new version, you will need to update the values in the new configuration file.  
+The Database structure has changed in this new version and it will need to be updated, run this command from the meshmap directory:
 
 ```
 sudo mysql -D node_map < meshmap_db_update.sql
 ```
+After that is done, continue with the Front End Setup.
+
 </details>
 
-<p class="callout warning">**You may want to stop here and switch to the [Front End Setup instructions](http://n7cpz-wiki.local.mesh/books/kg6wxc-mesh-map/page/front-end-setup).** The `pollingScript.php` script relies on the `/var/www/html/meshmap/data` directory existing and will fail unless it's created during the front end setup process.</p>
+---
 
-#### Testing
+**Note:** You may want to stop here and switch to the [Front End Setup instructions](http://n7cpz-wiki.local.mesh/books/kg6wxc-mesh-map/page/front-end-setup).  
+The `pollingScript.php` script uses the `/var/www/html/meshmap/data` directory by default to store the data for the webpage.  
+The script will fail if this directory does not exist.  
+You can use any other directory (with appropriate write permissions, of course) by changing the `webpageDataDir` value in _your_ `user-settings.ini` file.
+Changing the value to use a temporary directory (say, in your home directory) will allow you to run the following test without having to also setup the front end webpage, which can be done later.
+
+#### Testing the Polling Script
 
 Still working in the `KG6WXC-meshmap/settings` folder, run:
 
 ```
-sudo ./pollingScript.php --test-mode-with-sql
+./pollingScript.php --test-mode-with-sql
 ```
 
-Depending on your account permissions and where exactly you cloned the repository, `sudo` may be required for appropriate write permissions.
+Depending on your account permissions and where exactly you cloned the repository, `sudo` may be required for appropriate write permissions.  
+If this is the case, you have done something wrong, `sudo` should **not** be needed (and is **not** recommended by the author)
 
 The output should look something like this, without any warnings or errors:
 
 [![image.png](http://n7cpz-wiki.local.mesh/uploads/images/gallery/2025-02/scaled-1680-/0FFimage.png)](http://n7cpz-wiki.local.mesh/uploads/images/gallery/2025-02/0FFimage.png)
 
 #### Configure Scheduled Polling with Cron Job
+>**Note:** Set this up _after_ you can run the polling script sucessfully in test mode a couple of times.
 
 `pollingScript.php` will have to run regularly to update the map for changing mesh conditions. Linux uses cron jobs (crontabs) for scheduling recurring tasks. From any directory, run:
 
 ```
-sudo crontab -e
+crontab -e
 ```
 
-This opens the crontab file where new cron jobs are created and existing jobs can be edited. `sudo` here ensures the job will run with required permissions to write in the default `/home/your_username_here/` directory. Otherwise you may encounter write privilege errors.
+This opens the crontab file where new cron jobs are created and existing jobs can be edited.
 
 To update the map data every half hour:
 
@@ -137,6 +149,18 @@ To update once daily:
 
 Further reading on crontabs and additional options: [https://www.redhat.com/en/blog/linux-cron-command](https://www.redhat.com/en/blog/linux-cron-command)
 
-On exit, you'll see a confirmation message indicating whether a new crontab was created or no changes were made. You'll want to verify whether the job was created correctly by checking for cron log errors. There are two good methods for doing this: either run `sudo grep CRON /var/log/syslog` directly, or by checking the mail messages (cron will "email" a user running jobs with errors) under `/var/mail/`.
+On exit, you'll see a confirmation message indicating whether a new crontab was created or no changes were made.
+Also notice that the cronjob _does not_ use the test-mode switch for the polling script.
+Omitting the `test-mode-with-sql` switch will cause the script to run with no output to the screen except for any errors encountered.  
+Depending on the system, `cron` will send any error output, via email, to the user that the `cron` job was run under.
+
+
+>**Troubleshooting Hint:**
+>If the polling script _is_ running from cron and it just does not seem to be working, and you are not getting any messages from `cron` about it, try disabling the cronjob for the time being.
+>Just run `crontab -e` again and put a hash mark `#` at the beginning of the meshmap line, then save the file like normal.
+>That will disable the job without removing it.
+>Then run the polling script with --test-mode-with-sql switch and see what the error is.
+
+
 
 (this file was contributed by N7CPZ and edited by KG6WXC)
