@@ -139,7 +139,7 @@ If this is the case, you have done something wrong, `sudo` should **not** be nee
 
 The output should look something like this, without any warnings or errors:
 
-[![image.png](http://n7cpz-wiki.local.mesh/uploads/images/gallery/2025-02/scaled-1680-/0FFimage.png)](http://n7cpz-wiki.local.mesh/uploads/images/gallery/2025-02/0FFimage.png)
+![Polling Script Example Output](https://kg6wxc.net/misc/pollingScriptTestModeOutput.png)]
 
 #### Configure Scheduled Polling with Cron Job
 >**Note:** Set this up _after_ you can run the polling script sucessfully in test mode a couple of times.
@@ -183,7 +183,3 @@ Depending on the system, `cron` will send any error output, via email, to the us
 >Just run `crontab -e` again and put a hash mark `#` at the beginning of the meshmap line, then save the file like normal.
 >That will disable the job without removing it.
 >Then run the polling script with --test-mode-with-sql switch and see what the error is.
-
-
-
-(this file was contributed by N7CPZ and edited by KG6WXC)
