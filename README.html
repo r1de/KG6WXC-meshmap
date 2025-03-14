@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+</head>
+<body>
+<h1 id="kg6wxc-meshmap">KG6WXC MeshMap</h1>
+<p><a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a> <a href="https://www.arednmesh.org"><img src="https://img.shields.io/badge/HamRadio-Roger!-green.svg" alt="HamRadio" /></a> <a href="https://mattermost.kg6wxc.net/mesh/channels/meshmap"><img src="https://img.shields.io/badge/Chat-Mattermost-blueviolet.svg" alt="MattermostChat" /></a></p>
+<p>Automated mapping of <a href="https://arednmesh.org">AREDN</a> Networks.</p>
+<p>This is the <em>new</em> KG6WXC MeshMap device polling backend.</p>
+<p>2016-2025 - Eric Satterlee / KG6WXC</p>
+<p>Licensed under GPL v 3 and later.</p>
+<p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=6K5KQYYU34H4U&amp;currency_code=USD&amp;source=url">Donations</a> / Beer Accepted! :-)</p>
+<p>Special thanks and remembrance to Dale, N7QJK (SK) for his help beta testing the original meshmap.</p>
+<p>This README file was contributed by N7CPZ and heavily edited by KG6WXC.</p>
+<h2 id="polling-script-back-end-setup">Polling Script (Back End) Setup</h2>
+<p>Project Github: <a href="https://github.com/r1de/KG6WXC-meshmap">https://github.com/r1de/KG6WXC-meshmap</a></p>
+<h3 id="deployment-planning">Deployment Planning</h3>
+<p>Despite running an SQL database, this application is very lightweight and doesn’t consume many resources.<br />
+It’s best deployed in a stand-alone system or an LXC container (or whatever), it will also run on a Ras-Pi. &gt;In theory, it <em>should</em> run even on a Windows system.</p>
+<p>The amount of backend resources you give it really depends on the size of the network you are going to be polling.<br />
+A Southern California sized network will work on a Ras-Pi, but it will be slow.<br />
+2 CPU cores and 2048 MiB RAM are <em>more</em> than enough to run it smoothly.<br />
+You will <em>NOT</em> see a map from this code alone, this only populates the database with info and creates data files for use by the <a href="https://github.com/r1de/KG6WXC-meshmap-webpage">frontend code</a>.</p>
+<blockquote>
+<p><em>If you’re upgrading from the original KG6WXC MeshMap, skip to “<a href="#bkmrk-setup-for-upgrading-">Setup for Upgrading an Existing Install</a>”.</em></p>
+</blockquote>
+<h3 id="st-time-setup-on-debian-based-system">1st Time Setup on Debian-Based System</h3>
+<p>Install required libraries and programs (if not already installed): - <strong>git</strong> - <strong>php</strong> (php version 8+ required) - <strong>php-mysql</strong> - <strong>php-curl</strong> - <strong>mariadb-server</strong></p>
+<pre><code>sudo apt install git php php-mysql php-curl mariadb-server</code></pre>
+<p>Clone the project:</p>
+<pre><code>sudo git clone https://github.com/r1de/KG6WXC-meshmap.git</code></pre>
+<p>Once the cloning operation is complete, the application files will be under a folder called <code>KG6WXC-meshmap</code></p>
+<blockquote>
+<p><strong>Hint:</strong> You can also have <code>git</code> clone to a directory of your choice:<br />
+<code>git clone https://github.com/r1de/KG6WXC-meshmap.git meshmap</code> - use a directory called “meshmap”.<br />
+<code>git clone https://github.com/r1de/KG6WXC-meshmap.git .</code> - use the <em>current</em> directory.</p>
+</blockquote>
+<p>The MariaDB SQL database and user will need to be created before configuring and running the back end for the first time:</p>
+<pre><code>sudo mysql</code></pre>
+<pre><code>CREATE DATABASE node_map;</code></pre>
+<pre><code>CREATE USER &#39;mesh-map&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;your_password_here&#39;;</code></pre>
+<pre><code>GRANT ALL PRIVILEGES on node_map.* TO &#39;mesh-map&#39;@&#39;localhost&#39;;</code></pre>
+<pre><code>FLUSH PRIVILEGES;</code></pre>
+<pre><code>exit</code></pre>
+<p>Enter the project’s cloned directory and import the database configuration:</p>
+<pre><code>sudo mysql -D node_map &lt; meshmap_db_import.sql</code></pre>
+<p>Also, copy the default settings template:</p>
+<pre><code>cp settings/user-settings.ini-default settings/user-settings.ini</code></pre>
+<blockquote>
+<p><strong>DO NOT</strong> change the default file, it is used to add new default settings to meshmap.<br />
+When and if there are new settings you can always override them in your personal settings file.</p>
+</blockquote>
+<p>Edit the <em>copied</em> template for your site:</p>
+<pre><code>nano settings/user-settings.ini</code></pre>
+<p>This opens the default settings template file, which needs to be modified for your environment.<br />
+I won’t list all of the parameters here because then you’ll be lazy and won’t read the file.<br />
+The file is well-commented and suitably instructional.<br />
+Modify as required, then save as <code>settings/user-settings.ini</code>.</p>
+<hr />
+<details id="bkmrk-setup-for-upgrading-">
+<p><summary><strong>Setup for Upgrading an Existing Install</strong></summary></p>
+<p>You likely have everything you need already installed.<br />
+If you have been running the old map and are upgrading to this new version, you will need to update the values in the new configuration file. &gt;If you copy over your existing user-settings file and carefully update it, you could probably re-use it, there are some changes, but not many.</p>
+<p>The Database structure has changed in this new version and it will need to be updated, run this command from the meshmap directory:</p>
+<pre><code>sudo mysql -D node_map &lt; meshmap_db_update.sql</code></pre>
+<p>After that is done, run the polling script in test mode and continue with the Front End Setup.</p>
+</details>
+<hr />
+<p><strong>Note:</strong> You may want to stop here and switch to the <a href="http://n7cpz-wiki.local.mesh/books/kg6wxc-mesh-map/page/front-end-setup">Front End Setup instructions</a>.<br />
+The <code>pollingScript.php</code> script uses the <code>/var/www/html/meshmap/data</code> directory by default to store the data for the webpage.<br />
+The script will fail if this directory does not exist.<br />
+You can use any other directory (with appropriate write permissions, of course) by changing the <code>webpageDataDir</code> value in <em>your</em> <code>user-settings.ini</code> file.<br />
+Changing the value to use a temporary directory (say, in your home directory) will allow you to run the following test without having to also setup the front end webpage, which can be done later and you can set the proper directory then.</p>
+<h4 id="testing-the-polling-script">Testing the Polling Script</h4>
+<p>Still working in the <code>KG6WXC-meshmap</code> folder, run:</p>
+<pre><code>./pollingScript.php --test-mode-with-sql</code></pre>
+<p>Depending on your account permissions and where exactly you cloned the repository, <code>sudo</code> may be required for appropriate write permissions.<br />
+If this is the case, you have done something wrong, <code>sudo</code> should <strong>not</strong> be needed (and is <strong>not</strong> recommended by the author)</p>
+<p>The output should look something like this, without any warnings or errors:</p>
+<p><img src="https://kg6wxc.net/misc/pollingScriptTestModeOutput.png" alt="Polling Script Example Output" />]</p>
+<h4 id="configure-scheduled-polling-with-cron-job">Configure Scheduled Polling with Cron Job</h4>
+<blockquote>
+<p><strong>Note:</strong> Set this up <em>after</em> you can run the polling script sucessfully in test mode a couple of times.</p>
+</blockquote>
+<p><code>pollingScript.php</code> will have to run regularly to update the map for changing mesh conditions. Linux uses cron jobs (crontabs) for scheduling recurring tasks. From any directory, run:</p>
+<pre><code>crontab -e</code></pre>
+<p>This opens the crontab file where new cron jobs are created and existing jobs can be edited.</p>
+<p>To update the map data every half hour:</p>
+<pre><code>*/30 * * * * /home/your_username_here/KG6WXC-meshmap/pollingScript.php</code></pre>
+<p>To update every hour at the top of the hour:</p>
+<pre><code>0 * * * * /home/your_username_here/KG6WXC-meshmap/pollingScript.php</code></pre>
+<p>To update once daily at midnight:</p>
+<pre><code>0 0 * * * /home/your_username_here/KG6WXC-meshmap/pollingScript.php</code></pre>
+<p>Further reading on crontabs and additional options: <a href="https://www.redhat.com/en/blog/linux-cron-command">https://www.redhat.com/en/blog/linux-cron-command</a></p>
+<p>On exit, you’ll see a confirmation message indicating whether a new crontab was created or no changes were made. Also notice that the cronjob <em>does not</em> use the test-mode switch for the polling script. Omitting the <code>--test-mode-with-sql</code> switch will cause the script to run with no output to the screen except for any errors encountered.<br />
+Depending on the system, <code>cron</code> will send any error output, via email, to the user that the <code>cron</code> job was run under.</p>
+<blockquote>
+<p><strong>Troubleshooting Hint:</strong> If the polling script <em>is</em> running from cron and it just does not seem to be working, and you are not getting any messages from <code>cron</code> about it, try disabling the cronjob for the time being. Just run <code>crontab -e</code> again and put a hash mark <code>#</code> at the beginning of the meshmap line, then save the file like normal. That will disable the job without removing it. Then run the polling script with <code>--test-mode-with-sql</code> switch and see what the error is.</p>
+</blockquote>
+<p>3-13-25 KG6WXC</p>
+</body>
+</html>
