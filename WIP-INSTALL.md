@@ -183,3 +183,6 @@ Depending on the system, `cron` will send any error output, via email, to the us
 >Just run `crontab -e` again and put a hash mark `#` at the beginning of the meshmap line, then save the file like normal.
 >That will disable the job without removing it.
 >Then run the polling script with `--test-mode-with-sql` switch and see what the error is.
+
+
+3-13-25 KG6WXC
