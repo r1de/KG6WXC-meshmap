@@ -69,7 +69,7 @@ CREATE DATABASE node_map;
 ```  
 ```
 CREATE USER 'mesh-map'@'localhost' IDENTIFIED BY 'your_password_here';
-```  
+```
 ```
 GRANT ALL PRIVILEGES on node_map.* TO 'mesh-map'@'localhost';
 ```  
@@ -128,7 +128,7 @@ Changing the value to use a temporary directory (say, in your home directory) wi
 
 #### Testing the Polling Script
 
-Still working in the `KG6WXC-meshmap/settings` folder, run:
+Still working in the `KG6WXC-meshmap` folder, run:
 
 ```
 ./pollingScript.php --test-mode-with-sql
@@ -164,7 +164,7 @@ To update every hour at the top of the hour:
 0 * * * * /home/your_username_here/KG6WXC-meshmap/pollingScript.php
 ```
 
-To update once daily:
+To update once daily at midnight:
 
 ```
 0 0 * * * /home/your_username_here/KG6WXC-meshmap/pollingScript.php
@@ -174,7 +174,7 @@ Further reading on crontabs and additional options: [https://www.redhat.com/en/b
 
 On exit, you'll see a confirmation message indicating whether a new crontab was created or no changes were made.
 Also notice that the cronjob _does not_ use the test-mode switch for the polling script.
-Omitting the `test-mode-with-sql` switch will cause the script to run with no output to the screen except for any errors encountered.  
+Omitting the `--test-mode-with-sql` switch will cause the script to run with no output to the screen except for any errors encountered.  
 Depending on the system, `cron` will send any error output, via email, to the user that the `cron` job was run under.
 
 
@@ -182,4 +182,4 @@ Depending on the system, `cron` will send any error output, via email, to the us
 >If the polling script _is_ running from cron and it just does not seem to be working, and you are not getting any messages from `cron` about it, try disabling the cronjob for the time being.
 >Just run `crontab -e` again and put a hash mark `#` at the beginning of the meshmap line, then save the file like normal.
 >That will disable the job without removing it.
->Then run the polling script with --test-mode-with-sql switch and see what the error is.
+>Then run the polling script with `--test-mode-with-sql` switch and see what the error is.
