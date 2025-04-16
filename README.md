@@ -120,7 +120,7 @@ After that is done, run the polling script in test mode and continue with the Fr
 
 ---
 
-**Note:** You may want to stop here and switch to the [Front End Setup instructions](http://n7cpz-wiki.local.mesh/books/kg6wxc-mesh-map/page/front-end-setup).  
+**Note:** You may want to stop here and switch to the [Front End Setup](https://github.com/r1de/KG6WXC-meshmap-webpage).  
 The `pollingScript.php` script uses the `/var/www/html/meshmap/data` directory by default to store the data for the webpage.  
 The script will fail if this directory does not exist.  
 You can use any other directory (with appropriate write permissions, of course) by changing the `webpageDataDir` value in _your_ `user-settings.ini` file.  
