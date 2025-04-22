@@ -30,8 +30,10 @@ function wxc_getDistanceAndBearing (float $node_lat, float $node_lon, float $lin
 	$distanceKM = round($distanceKM, 2);
 	$distanceMiles = $angleBetweenTheTwoPoints * $earthRadiusMiles;
 	$distanceMiles = round($distanceMiles, 2);
-	
-	$bearing = (rad2deg(atan2(sin(deg2rad($linked_node_lon) - deg2rad($node_lon)) * cos(deg2rad($linked_node_lat)), cos(deg2rad($node_lat)) * sin(deg2rad($linked_node_lat)) - sin(deg2rad($node_lat)) * cos(deg2rad($linked_node_lat)) * cos(deg2rad($linked_node_lon) - deg2rad($node_lon)))) + 360) % 360;
+
+//fix "depreciated" PHP warning (but save in case needed later)
+//	$bearing = (rad2deg(atan2(sin(deg2rad($linked_node_lon) - deg2rad($node_lon)) * cos(deg2rad($linked_node_lat)), cos(deg2rad($node_lat)) * sin(deg2rad($linked_node_lat)) - sin(deg2rad($node_lat)) * cos(deg2rad($linked_node_lat)) * cos(deg2rad($linked_node_lon) - deg2rad($node_lon)))) + 360) % 360;
+	$bearing = floor((rad2deg(atan2(sin(deg2rad($linked_node_lon) - deg2rad($node_lon)) * cos(deg2rad($linked_node_lat)), cos(deg2rad($node_lat)) * sin(deg2rad($linked_node_lat)) - sin(deg2rad($node_lat)) * cos(deg2rad($linked_node_lat)) * cos(deg2rad($linked_node_lon) - deg2rad($node_lon)))) + 360));
 	
 	return array("distanceKM" => $distanceKM, "distanceMiles" => $distanceMiles, "bearing" => $bearing);
 }
