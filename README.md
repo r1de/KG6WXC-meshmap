@@ -34,7 +34,7 @@ A reverse proxy is recommended for internet access.
   
 4. Edit the user-settings.ini file according to your setup.
     - Most of the default values should be ok, but they are not good enough!  
-    ![Picard Facepalming with the text "No, the defaults are not good enough"](https://kg6wxc.net/images/Picard-defaults.PNG)  
+    <img src="https://kg6wxc.net/images/Picard-defaults.PNG">  
     You should go over them and tweak them to your site.  
     Do not forget to change the default map center values or you'll end up looking at So. Cal. Maps.  
     There are many comments trying to describe what each settings does.  
@@ -50,6 +50,9 @@ A reverse proxy is recommended for internet access.
   
 6. Edit and move to systemd service file.
   - You shouldn't really have to edit it if you've followed these steps.
+    ```bash
+    sudo mv file file
+    ```
 
 7. Now move the meshmap directory that you just created to `/opt/meshmap` and set the permissions.
     ```bash
