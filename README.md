@@ -4,66 +4,63 @@
 [![HamRadio](https://img.shields.io/badge/HamRadio-Roger!-green.svg)](https://www.arednmesh.org)
 [![MattermostChat](https://img.shields.io/badge/Chat-Mattermost-blueviolet.svg)](https://mattermost.kg6wxc.net/mesh/channels/meshmap)
 
-KG6WXC's updated MeshMap, Thanks to ChatGPT Codex for helping a lot with this effort.  
-I apprciate everyones support over the years!  
-Still beta, but works well enough for wider testing.
+KG6WXC's updated MeshMap.  
+ChatGPT Codex helped a lot with this effort.  
+I appreciate everyones support over the years!  
+(And some for encouraging me to update this old program)  
+This still beta, but works well enough for wider testing.
 
 ## New:
 One executable for polling, SQLite storage, and the KG6WXC MeshMap webpage.  
-SQLite is embedded and is the default: no PHP, SQLite executable, C compiler, or database server is needed on the destination machine.  
-MariaDB/MySQL remains available, but has yet to be tested at this point.  
+SQLite is embedded and is the default: no PHP, C compiler, or database server is needed.  
+MariaDB/MySQL remains available, but has yet to be fully tested at this point. [ToDo]  
 The map, scripts, styling, logo and Leaflet are embedded; no separate web server or webpage installation is required.  
 A reverse proxy is recommended for internet access.  
 
 ## Install as a service on Linux
 
-```bash
-sudo useradd -r -s /bin/false meshmap
-sudo mkdir /opt/meshmap
+1. Download the binary [release](https://github.com/r1de/KG6WXC-meshmap/releases) file for your system
+  
+2. Decompress the files into a directory called `meshmap`
+    ```bash
+    tar -zxvf meshmap-release-file.tgz -C meshmap
+    ```
+  
+3. Enter the `meshmap` directory and create the initial `user-setting.ini` file.
+    ```bash
+    cd meshmap
+    ./meshmap --init
+    ```
+  
+4. Edit the user-settings.ini file according to your setup.
+    - Most of the default values should be ok, but they are not good enough!  
+    ![Picard Facepalming with the text "No, the defaults are not good enough"](https://kg6wxc.net/images/picard-defaults.svg)  
+    You should go over them and tweak them to your site.  
+    Do not forget to change the default map center values or you'll end up looking at So. Cal. Maps.  
+    There are many comments trying to describe what each settings does.  
+    If you used my original MeshMap, it will look very familiar.  
+      ```bash
+      nano settings/user-settings.ini
+      ```
+  
+5. Create a `meshmap` system user to run this service as.
+    ```bash
+    sudo useradd -r -s /bin/false meshmap
+    ```
+  
+6. Edit and move to systemd service file.
+  - You shouldn't really have to edit it if you've followed these steps.
 
-sudo chown meshmap:meshmap /opt/meshmap
-download it
-```
+7. Now move the meshmap directory that you just created to `/opt/meshmap` and set the permissions.
+    ```bash
+    sudo mv meshmap /opt
+    sudo chown -R meshmap:meshmap /opt/meshmap
+    ```
+  
+8. 
 
-Choose the executable matching the machine: amd64 for normal Intel/AMD systems,
-arm64 for 64-bit ARM (including Raspberry Pi OS 64-bit), armv7 for 32-bit ARMv7.
 
-Place it in a directory by itself, and writable by the user you intended to run it as.
-irectory name does not matter.
 
-Run from that directory:
-
-```sh
-chmod +x meshmap
-./meshmap --init
-```
-
-That will create a default user-settings.ini file.
-Edit `settings/user-settings.ini`.
-The INI file has comments for each section and is automatically updated with new settings as they are released.
-Make sure to set the default map center, unless you want to see Southern California maps.
-
-Test in a separate directory initially if needed.
-
-```sh
-./meshmap --serve --test-mode-with-sql
-```
-
-SQLite automatically creates `data/meshmap.sqlite`. `sqlite_path` is relative to
-the configuration file; output paths are relative to the working directory.
-Defaults are embedded in the executable; an optional sibling
-`user-settings.ini-default` file and then the user configuration overrides them.
-`--init` never overwrites an existing configuration.
-Keep configuration and SQLite files outside the web server's public directory.
-
-~~
-Schedule with cron under the same user, using absolute paths and a fixed working
-directory (replace `/opt/meshmap` with your installation):
-
-```cron
-*/10 * * * * cd /opt/meshmap && ./meshmap --config /opt/meshmap/settings/user-settings.ini >> /opt/meshmap/cron.log 2>&1
-```
-~~
 
 An advisory lock prevents overlapping runs sharing the same logs directory.
 Normal runs are quiet; errors return a nonzero exit status. HTTP and database
