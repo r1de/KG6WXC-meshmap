@@ -1,5 +1,9 @@
 # MeshMap Go
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![HamRadio](https://img.shields.io/badge/HamRadio-Roger!-green.svg)](https://www.arednmesh.org)
+[![MattermostChat](https://img.shields.io/badge/Chat-Mattermost-blueviolet.svg)](https://mattermost.kg6wxc.net/mesh/channels/meshmap)
+
 KG6WXC's updated MeshMap, Thanks to ChatGPT Codex for helping a lot with this effort.  
 I apprciate everyones support over the years!  
 Still beta, but works well enough for wider testing.
