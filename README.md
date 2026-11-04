@@ -34,7 +34,7 @@ A reverse proxy is recommended for internet access.
   
 4. Edit the user-settings.ini file according to your setup.
     - Most of the default values should be ok, but they are not good enough!  
-    ![Picard Facepalming with the text "No, the defaults are not good enough"](https://kg6wxc.net/images/Picard-defaults.PNG)  
+    ![Picard Facepalming with the text "No, the defaults are not good enough"](https://kg6wxc.net/images/picard-gh-mm.png)
     You should go over them and tweak them to your site.  
     Do not forget to change the default map center values or you'll end up looking at So. Cal. Maps.  
     There are many comments trying to describe what each settings does.  
