@@ -1,0 +1,9 @@
+KG6WXC MeshMap embedded webpage
+Based on Eric Satterlee / KG6WXC's meshmap-webpage (2016–2025), GPL-3.0-or-later.
+https://github.com/r1de/KG6WXC-meshmap-webpage
+Layout and branding retained; application rendering and metrics modernized.
+
+Leaflet 1.9.4: Copyright 2010–2023 Vladimir Agafonkin, 2010–2011 CloudMade.
+BSD-2-Clause license: see vendor/LEAFLET-LICENSE.txt.
+Leaflet.PolylineOffset: Copyright Benjamin Becquet. MIT license:
+see vendor/POLYLINE-OFFSET-LICENSE.txt.

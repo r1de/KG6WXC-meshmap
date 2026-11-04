@@ -1,0 +1,22 @@
+[Unit]
+Description=KG6WXC MeshMap poller and embedded web server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=meshmap
+Group=meshmap
+WorkingDirectory=/opt/meshmap
+# Listen address and polling interval are read from user-settings.ini.
+ExecStart=/opt/meshmap/meshmap --config /opt/meshmap/settings/user-settings.ini --serve
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

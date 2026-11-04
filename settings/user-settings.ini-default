@@ -1,0 +1,199 @@
+[user-settings]
+;-------------------------------------------------------------
+;Default Settings for KG6WXC MeshMap
+;Nov - 2026
+;
+;***IMPORTANT***
+;This file should be edited directly.
+;Missing settings are automatically appended to user-settings.ini at startup.
+;The updates will not change your existing edits.
+;
+;You want to make your changes in between the quotes, 
+;ie: localnode = "10.x.x.x"
+;
+;Each section has comments that should explain what they are for.
+;-------------------------------------------------------------
+
+;;Your localnode's IP address or hostname
+;The system running the Polling script should be able to resolve the host name.
+;If it cannot, you'll need to change this to an IP address.
+;Just leave it set at "localnode.local.mesh" unless you need to change it.
+;--------------------------------------------------------------
+localnode = "localnode.local.mesh"
+
+;;Runtime mode and scheduling
+;"poll" runs once (backward compatible).
+;"serve" runs the embedded webpage and polls repeatedly with the poll-interval schedule.
+;"serve-only" serves completed snapshots without polling.
+;Command-line options override these settings for that run only.
+;--------------------------------------------------------------
+run_mode = "serve"
+
+;Wait this long after each completed polling cycle before starting another.
+;Duration examples: "30s", "5m", "1h". Used in serve mode.
+;--------------------------------------------------------------
+poll_interval = "4h"
+
+;Per-node HTTP budget across endpoint fallbacks, and database I/O timeout.
+;This is not the total polling-run limit.
+;This controls how long to wait for a response.
+;Lower numbers will make polling go faster, but may miss some nodes due to network latency.
+;--------------------------------------------------------------
+http_timeout = "30s"
+
+;Use "0.0.0.0:8088" to listen on all IPv4 interfaces, or a specific IP:port.
+;--------------------------------------------------------------
+listen_address = "127.0.0.1:8088"
+
+;Set both PEM file paths for direct HTTPS. Empty values leave HTTP enabled.
+;--------------------------------------------------------------
+tls_cert = ""
+tls_key = ""
+
+;;Persistent diagnostics (restart to apply changes)
+;Normal runs are quiet; everyday warnings/errors go to error.log.
+;Debug mode creates one debug.log containing lifecycle events, polling/request
+;details, memory samples and native Go crash output, and mirrors diagnostics
+;to the console.
+;--------------------------------------------------------------
+debug_mode = false
+
+;Empty uses the existing logs directory beside settings/.
+;Relative paths are relative to the installation directory containing settings/.
+;--------------------------------------------------------------
+log_directory = ""
+
+;Rotate each regular diagnostic log at this size, keeping this many archives.
+;Native crash output may exceed the size limit before the process exits.
+;--------------------------------------------------------------
+log_max_size_mb = 10
+log_backups = 3
+
+;Indicates the program is still running in debugging mode
+;--------------------------------------------------------------
+debug_heartbeat_interval = "1m"
+
+;;SQL Type
+;SQLite is embedded; no database server is required.
+;MariaDB uses the existing schema.sql.
+;Options: "sqlite" (default), "mysql" or "mariadb".
+;--------------------------------------------------------------
+SQL_TYPE = "sqlite"
+
+; SQLite path is relative to this settings file, or an absolute path.
+;--------------------------------------------------------------
+sqlite_path = "../data/meshmap.sqlite"
+
+;;SQL username, password, database name, table names.
+;ONLY NEED TO CHANGE THESE IF YOU ARE USING A MYSQL SERVER
+;The SQL server does not have to be on the system that is running the polling script.
+;You **must** at least update sql_user, sql_passwd, and sql_server to reflect *your* environment!
+;You probably do not want to (and should not) change the sql_db* entries unless you really know what you are doing!
+;-------------------------------------------------------------
+sql_server = "localhost"
+sql_user = "mesh-map"
+sql_passwd = "mesh-map_sql_user_password"
+sql_db = "node_map"
+sql_db_tbl = "node_info"
+
+; Optional additional OLSR/Babel origin nodes, separated by commas.
+;--------------------------------------------------------------
+discovery_seeds = ""
+
+;Maximum nodes to poll (just leave it for now!)
+;--------------------------------------------------------------
+max_nodes = "10000"
+
+;;Node expiration intervals
+;after how many *days* do nodes get removed when we have not heard from them?
+;Set expire_old_nodes to "true" to actually expire the old nodes. "false" will not expire any nodes.
+;--------------------------------------------------------------
+expire_old_nodes = "true"
+node_expire_interval = "7"
+
+;;Current firmware version.
+;This will check the internet for the current aredn versions.
+;--------------------------------------------------------------
+AREDN_VERSION_CHECK_URL = "http://downloads.arednmesh.org/afs/www/config.js"
+aredn_firmware_check = "true"
+
+;;Maximum concurrent HTTP polling workers.
+;Go uses one process with bounded concurrent workers, not one process per node.
+;Reduce this value on slow networks or small devices.
+;--------------------------------------------------------------
+numParallelThreads = "60"
+
+;;Map Center Coordinates and starting zoom level
+;These are the coordinates for the center of the map on the webpage, and the initial Zoom Level.
+;This will probably take some experimenting to get just right.
+;These values are for Ventura and Santa Barbara Counties in California, USA.
+;--------------------------------------------------------------
+map_center_coordinates['lat'] = "34.35"
+map_center_coordinates['lon'] = "-119.6"
+map_initial_zoom_level = "10"
+
+;;Prefer Kilometers over Miles?
+;change to "true" to flip the preference
+;the map page will then show 1km (1.62mi)
+;--------------------------------------------------------------
+kilometers = false
+
+;;Map Tile servers you wish to use
+;If you wish to add more, just create a new line in the same fashion.
+;ie: mapTileServers['Name of Map'] = "//new.server.name/tiles/blah/blah/{z}/{x}/{y}.png"
+;
+;They can even be directories that contain map tiles in the correct directory structure.
+;If you do use a directory name, it must be relative to the webroot.
+;This could be used in an offline state from tiles that have been pre-cached,
+;or downloaded from other programs such as Xastir.
+;ie: mapTileServers['osm_tiles/{z}/{x}/{y}.png']
+;
+;You could add them to your hearts content! Try not to go overboard. :)
+;
+;Append the string "-default" to the name of the map you'd like to have shown by default
+;
+;You must include the /{z}/{x}/{y}.png here, but make sure your using the right one
+;for the server you are using.
+;"/{z}/{x}/{y}.png" is just an example but should work for most.
+;--------------------------------------------------------------
+mapTileServers['Topographic'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+mapTileServers['Street-default'] = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+mapTileServers['Satellite'] = "//basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
+
+;;*NOTE*
+;Any any tile server with ".local.mesh" in it's URL will be used in place of the others
+;when the webpage is hosted and accessed from the mesh network.
+;This is an attempt to keep this map working in a total "offline" state.
+;This behavior is disabled by default, uncomment and update the URL to use
+;mapTileServers['KG6WXC on AREDN'] = "//kg6wxc-osm.local.mesh/osm_tiles/{z}/{x}/{y}.png"
+
+;;The Title of the web page, web page logo and the text above the map.
+;--------------------------------------------------------------
+pageTitle = "KG6WXC MeshMap"
+attribution = "KG6WXC MeshMap"
+mapContact = ""
+
+;;Local Webpage Data Files Directory
+;This is where the polling script will save the java files for the webpage.
+;Wherever you copied the webpage files to, there is a "data" directory, use that path.
+;*NOTE*
+;If the webpage will run on a seperate system and use the "Upload To Cloud" feature (below),
+;than this could be any directory that the polling script has write permissions to.
+;
+;USE A FULL PATH! example: "/var/www/html/meshmap/data"
+;---------------------------------------------------------------
+webpageDataDir = "./web-data"
+
+;;Used to get the map data out to another system on or off the mesh network.
+;;THIS IS AN ADVANCED FEATURE
+;;You will either understand how to use or not.
+;;I can't explain it all here, there is no room!
+;;**NOTE**
+;This requires ssh access to the remote system
+;AND that you setup an SSH keyfile without a password ON BOTH systems first.
+;If none of that made sense just leave it commented!
+;---------------------------------------------------------------
+;uploadToCloud = false
+;cloudSSHKeyFile = "/home/username/.ssh/id_rsa"
+;cloudServer['ExampleName'] = "user@host:directory"
+;;cloudServer['ExampleName2'] = "user@host:directory"
