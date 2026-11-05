@@ -33,7 +33,7 @@ jobs:
             tar -czf "release/meshmap-${GITHUB_REF_NAME}-linux-${arch}.tar.gz" \
               -C dist "meshmap-linux-${arch}" \
               -C "$GITHUB_WORKSPACE" \
-              deploy/meshmap.service README.md DIAGNOSTICS.md \
+              deploy/meshmap.service README.md CHANGELOG.md DIAGNOSTICS.md \
               LICENSE THIRD_PARTY_LICENSES schema.sql
           done
 
