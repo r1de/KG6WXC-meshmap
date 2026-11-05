@@ -36,8 +36,9 @@ A reverse proxy is recommended for internet access.
     cd meshmap
     ./meshmap --init
     ```
+    - This creates an initial `settings/user-settings.ini` file.
   
-4. Edit the user-settings.ini file according to your setup.
+4. Edit the `settings/user-settings.ini` file according to your setup.
     - Most of the default values should be ok, but they are not good enough!  
     ![Picard Facepalming with the text "No, the defaults are not good enough"](https://kg6wxc.net/images/picard-gh-mm.png)  
     You should go over them and tweak them to your site.  
