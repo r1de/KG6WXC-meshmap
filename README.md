@@ -1,7 +1,8 @@
 # KG6WXC MeshMap
 <p>
     <a href="https://arednmesh.org"><img src="https://kg6wxc.net/images/AREDN_PIR8.png" width=10%></a>
-    <a href="https://www.pvarc.club"><img src="https://kg6wxc.net/images/PVARC_Fun.png" width=10%></a>
+    <a href="https://arednmesh.org"><img src="https://kg6wxc.net/images/PVARC_Fun.png" width=10%></a>
+    <a href="https://www.pvarc.club"><img src="https://kg6wxc.net/images/sbarc-logo-export.png" width=10%></a>
     <a href="https://www.kg6wxc.net"><img src="https://kg6wxc.net/images/WXC_Fun.png" width=10%></a>
 </p>
 
