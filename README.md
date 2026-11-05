@@ -1,10 +1,10 @@
 # KG6WXC MeshMap
+<p>
+    <a href="arednmesh.org"><img src="https://kg6wxc.net/images/AREDN_PIR8.png" width=10%></a>
+    <a href="www.pvarc.club"><img src="https://kg6wxc.net/images/PVARC_Fun.png" width=10%></a>
+    <a href="www.kg6wxc.net"><img src="https://kg6wxc.net/images/WXC_Fun.png" width=10%></a>
+</p>
 
-<!--
-[![AREDN](https://kg6wxc.net/images/AREDN_PIR8.png)](https://arednmesh.org)
-[![PVARC](https://kg6wxc.net/images/PVARC_Fun.png)](https://www.pvarc.club/)
-[![KG6WXC](https://kg6wxc.net/images/WXC_Fun.png)](https://www.kg6wxc.net)
--->
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HamRadio](https://img.shields.io/badge/HamRadio-Roger!-green.svg)](https://www.arednmesh.org)
 [![MattermostChat](https://img.shields.io/badge/Chat-Mattermost-blueviolet.svg)](https://mattermost.kg6wxc.net/mesh/channels/meshmap)
