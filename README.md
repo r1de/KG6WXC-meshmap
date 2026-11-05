@@ -1,4 +1,7 @@
-# MeshMap Go
+# KG6WXC MeshMap
+[![AREDN](https://kg6wxc.net/images/AREDN_PIR8.png)](https://arednmesh.org)
+[![PVARC](https://kg6wxc.net/images/PVARC_Fun.png)](https://www.pvarc.club/)
+[![KG6WXC](https://kg6wxc.net/images/WXC_Fun.png)](https://www.kg6wxc.net)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![HamRadio](https://img.shields.io/badge/HamRadio-Roger!-green.svg)](https://www.arednmesh.org)
