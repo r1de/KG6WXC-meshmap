@@ -252,6 +252,8 @@ footer button {
   min-width: 285px;
   line-height: 1.45;
   font-family: system-ui, sans-serif;
+  padding-right: 10px;
+  margin: 13px, 14px, 13px, 14px;
 }
 .leaflet-popup-content h2 {
   font-size: 17px;

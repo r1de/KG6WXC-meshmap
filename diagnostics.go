@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-const version = "MeshMap Go 0.3.3 (quiet logging)"
+const version = "MeshMap 3.0.5"
 
 // rotatingLog writes immediately (no userspace buffer) and serializes writers
 // from polling workers, HTTP handlers and the heartbeat goroutine.

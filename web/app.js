@@ -87,6 +87,9 @@ function linkType(l, t) {
   if (["TUN", "WIREGUARD", "TUNNEL"].includes(type)) return "TUN";
   return "OTHER";
 }
+
+//Remove null values in the node popups
+/*
 function addRows(parent, rows) {
   const dl = el("dl", null, "metrics");
   for (const [k, v] of rows) {
@@ -97,6 +100,27 @@ function addRows(parent, rows) {
   }
   parent.append(dl);
 }
+*/
+function addRows(parent, rows) {
+  const dl = el("dl", null, "metrics");
+  
+  for (const [k, v] of rows) {
+    if (
+      v === null ||
+      v === undefined ||
+      v === "" ||
+      v === "—" ||
+      v === "-"
+    ) {
+      continue;
+    }
+    
+    dl.append(el("dt", k), el("dd", v));
+  }
+  
+  if (dl.children.length) parent.append(dl);
+}
+
 function nodeURL(n) {
   const host = String(n.node || "");
   if (/^[A-Za-z0-9-]+$/.test(host))
@@ -244,6 +268,8 @@ function nodeDetails(n) {
   const panels = {
     Node: () => {
       const p = el("div");
+      const antenna = String(n.antDesc ?? "").trim();
+      const hasAntenna = antenna !== "" && antenna.toLowerCase() !== "not available";
       if (n.description) p.append(el("p", n.description));
       addRows(p, [
         ["Model", n.model],
@@ -251,17 +277,21 @@ function nodeDetails(n) {
         ["API", n.api_version],
         ["Location", located(n) ? n.lat + ", " + n.lon : "Not provided"],
         ["Grid", n.grid_square],
-        ["SSID", n.ssid],
-        [
-          "Channel / width",
-          String(n.channel ?? "—") + " / " + String(n.chanbw ?? "—") + " MHz",
-        ],
-        ["Frequency", format(n.freq, "MHz")],
-        ["Antenna", n.antDesc],
-        [
-          "Gain / beam",
-          format(n.antGain, "dBi") + " / " + format(n.antBeam, "°"),
-        ],
+        ...(hasAntenna
+          ? [
+              ["SSID", n.ssid],
+              [
+                "Channel / width",
+                  String(n.channel ?? "—") + " / " + String(n.chanbw ?? "—") + " MHz",
+              ],
+              ["Frequency", format(n.freq, "MHz")],
+              ["Antenna", n.antDesc],
+              [
+                "Gain / beam",
+                  format(n.antGain, "dBi") + " / " + format(n.antBeam, "°"),
+              ],
+            ]
+          : []),
         ["Uptime", n.uptime],
         ["Hops (when reported)", n.hopsAway ?? "Unknown"],
       ]);
