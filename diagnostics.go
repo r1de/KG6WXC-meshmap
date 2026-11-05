@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-const version = "MeshMap 3.0.5"
+const version = "MeshMap 3.1.1"
 
 // rotatingLog writes immediately (no userspace buffer) and serializes writers
 // from polling workers, HTTP handlers and the heartbeat goroutine.
@@ -102,6 +102,13 @@ func (w *rotatingLog) Write(p []byte) (n int, err error) {
 		}
 	}
 	if w.size > 0 && w.size+int64(len(p)) > w.max {
+		// Release the runtime's duplicate handle before renaming the file.
+		// Windows cannot rename a log while that handle remains open.
+		if w.crash && runtime.GOOS == "windows" {
+			if err = debug.SetCrashOutput(nil, debug.CrashOptions{}); err != nil {
+				return 0, err
+			}
+		}
 		if err = w.file.Close(); err != nil {
 			w.file = nil
 			return 0, err

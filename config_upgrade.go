@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"syscall"
 
 	"gopkg.in/ini.v1"
 )
@@ -127,10 +126,10 @@ func upgradeConfig(path string, defaults []settingDefault) ([]byte, error) {
 		return nil, fmt.Errorf("cannot lock settings for adding new defaults: %w", e)
 	}
 	defer lock.Close()
-	if e = syscall.Flock(int(lock.Fd()), syscall.LOCK_EX); e != nil {
+	if e = lockFile(lock, true); e != nil {
 		return nil, e
 	}
-	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
+	defer unlockFile(lock)
 	before, e = os.ReadFile(target)
 	if e != nil {
 		return nil, e
@@ -155,10 +154,8 @@ func upgradeConfig(path string, defaults []settingDefault) ([]byte, error) {
 	}
 	defer os.Remove(f.Name())
 	fail := func(e error) ([]byte, error) { f.Close(); return nil, e }
-	if stat, ok := info.Sys().(*syscall.Stat_t); ok {
-		if e = f.Chown(int(stat.Uid), int(stat.Gid)); e != nil {
-			return fail(e)
-		}
+	if e = preserveFileOwner(f, info); e != nil {
+		return fail(e)
 	}
 	if e = f.Chmod(info.Mode().Perm()); e != nil {
 		return fail(e)

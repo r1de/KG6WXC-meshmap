@@ -15,7 +15,6 @@ import (
 	"runtime/debug"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -216,7 +215,7 @@ func run() (runErr error) {
 	base := context.WithValue(context.Background(), diagnosticsKey{}, diagnostics)
 	ctx, cancel := context.WithCancel(base)
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+	signal.Notify(signals, shutdownSignals()...)
 	signalDone := make(chan struct{})
 	go func() {
 		defer close(signalDone)
@@ -283,10 +282,10 @@ func pollCycle(ctx context.Context, c Config, noSQL, verbose, filesOnly bool, fi
 		return e
 	}
 	defer lock.Close()
-	if e = syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); e != nil {
-		return fmt.Errorf("another polling run holds the lock")
+	if e = lockFile(lock, false); e != nil {
+		return fmt.Errorf("cannot acquire polling lock (another run may be active): %w", e)
 	}
-	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
+	defer unlockFile(lock)
 	client := newClient(c.Timeout, c.Workers)
 	defer client.CloseIdleConnections()
 	var store *Store

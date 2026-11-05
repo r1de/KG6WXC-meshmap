@@ -98,4 +98,16 @@ make build
 make release
 ```
 
+`make release` cross-compiles Linux (amd64, arm64, ARMv7), macOS (Intel and
+Apple Silicon), and Windows (amd64) binaries into `dist/`. No C compiler is
+required. The GitHub release workflow tests on Linux, macOS, and Windows before
+building the downloads, with `.tar.gz` archives for Linux/macOS and a `.zip`
+archive for Windows.
+
+On Windows, run `meshmap-windows-amd64.exe --init`, edit
+`settings/user-settings.ini`, then run `meshmap-windows-amd64.exe --serve`.
+In PowerShell, prefix the executable name with `.\`. Windows runs as a console
+program; the supplied systemd service is for Linux. Optional SSH uploads require
+`ssh` and `scp` to be installed and available on `PATH` on each platform.
+
 73, KG6WXC

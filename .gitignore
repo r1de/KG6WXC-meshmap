@@ -6,3 +6,4 @@
 /settings/user-settings.ini
 /settings/user-settings.ini.lock
 /cron.log
+!/platform_test.go
