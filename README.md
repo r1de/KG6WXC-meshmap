@@ -60,7 +60,7 @@ A reverse proxy is recommended for internet access.
 7. Edit and move the systemd service file.
     - You shouldn't really have to edit it if you've followed these steps.  
       ```bash
-      sudo mv dist/file file
+      sudo mv deploy/meshmap.service /etc/systemd/system/
       ```
   
 8. Let systemd know about the new service file and start meshmap.  

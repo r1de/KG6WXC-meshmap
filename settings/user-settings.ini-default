@@ -43,7 +43,7 @@ http_timeout = "30s"
 
 ;Use "0.0.0.0:8088" to listen on all IPv4 interfaces, or a specific IP:port.
 ;--------------------------------------------------------------
-listen_address = "127.0.0.1:8088"
+listen_address = "0.0.0.0:8088"
 
 ;Set both PEM file paths for direct HTTPS. Empty values leave HTTP enabled.
 ;--------------------------------------------------------------
