@@ -20,16 +20,16 @@
         <h1 id="title">KG6WXC MeshMap</h1>
         <p id="summary">AREDN network map</p>
       </div>
-      <label class="search"
-        ><span class="sr-only">Find a node</span
-        ><input
+      <label class="search">
+        <span class="sr-only">Find a node</span>
+        <input
           id="search"
           type="search"
           list="node-options"
           placeholder="Find a node…"
-          autocomplete="off" /><datalist id="node-options"></datalist></label
-      ><button id="find">Find</button
-      ><button id="reports">Node & link reports</button>
+          autocomplete="off" /><datalist id="node-options"></datalist></label>
+      <button id="find">Find</button>
+      <button id="reports">Node & link reports</button>
     </header>
     <main id="map" aria-label="AREDN network map"></main>
     <section class="controls card" aria-label="Map controls">
@@ -59,14 +59,14 @@
             <option value="route">Route metric summary</option>
             <option value="olsrCost">OLSR link cost</option>
             <option value="olsrQuality">OLSR receive quality</option>
-          </select></label
-        ><label id="scale-label"
-          >Green at<select id="scale">
+          </select></label>
+        <label id="scale-label">
+          Green at<select id="scale">
             <option value="30">30 Mbps</option>
             <option value="50" selected>50 Mbps</option>
             <option value="100">100 Mbps</option>
-          </select></label
-        >
+          </select></label>
+        
         <div class="actions">
           <button id="fit">Fit network</button
           ><button id="origin">Map origin</button>
@@ -93,9 +93,11 @@
       Waiting for the first completed poll…
     </div>
     <footer>
-      <span id="timestamp">No snapshot loaded</span
-      ><span id="credit">KG6WXC MeshMap · Go</span
-      ><button id="refresh">Refresh data</button>
+      <span id="timestamp">No snapshot loaded</span>
+      <span id="cursor-coordinates">Pointer Coordinates: Lat: — · Lon: — </span>
+      <span id="credit">KG6WXC MeshMap · Go</span>
+      <!-- The "Refresh Data" button -->
+      <!-- <button id="refresh">Refresh data</button> -->
     </footer>
     <dialog id="report-dialog">
       <div class="dialog-head">

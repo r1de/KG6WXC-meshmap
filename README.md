@@ -19,9 +19,15 @@ This still beta, but works well enough for wider testing.
 ## New:
 One executable for polling, SQLite storage, and the KG6WXC MeshMap webpage.  
 SQLite is embedded and is the default: no PHP, C compiler, or database server is needed.  
-MariaDB/MySQL remains available, but has yet to be fully tested at this point. [ToDo]  
-The map, scripts, styling, logo and Leaflet are embedded; no separate web server or webpage installation is required.  
+MariaDB/MySQL remains available, but has yet to be fully tested at this point.  
+No separate web server or webpage installation is required.  
 A reverse proxy is recommended for internet access.  
+The map, scripts, and Leaflet are embedded.
+
+### Hopefull Changes (AKA [ToDo] List)
+    - [ ] Test MariaDB
+    - [ ] User abilty to change styling, logo for the map
+    - [ ] Others (Never!)
 
 ## Install as a service on Linux
 
@@ -85,6 +91,17 @@ A reverse proxy is recommended for internet access.
     - Load up the webpage in your local browser.  
     Unless you used a different port, try clicking [here](http://localhost:8088)
 
+## Windows
+
+On Windows, run `meshmap-windows-amd64.exe --init`.  
+Then edit `settings/user-settings.ini`, then run `meshmap-windows-amd64.exe --serve`.  
+In PowerShell, prefix the executable name with `.\`.  
+Windows runs as a console program; the supplied systemd service is for Linux.  
+Optional SSH uploads require `ssh` and `scp` to be installed and available on `PATH`.  
+
+## MAC
+#### Basically the same as linux, but you will have to find your way through the garden yourself.
+
 ## Build from source
 
 Go 1.23.6 or later is required only on the build machine.  
@@ -105,10 +122,5 @@ required. The GitHub release workflow tests on Linux, macOS, and Windows before
 building the downloads, with `.tar.gz` archives for Linux/macOS and a `.zip`
 archive for Windows.
 
-On Windows, run `meshmap-windows-amd64.exe --init`, edit
-`settings/user-settings.ini`, then run `meshmap-windows-amd64.exe --serve`.
-In PowerShell, prefix the executable name with `.\`. Windows runs as a console
-program; the supplied systemd service is for Linux. Optional SSH uploads require
-`ssh` and `scp` to be installed and available on `PATH` on each platform.
 
 73, KG6WXC

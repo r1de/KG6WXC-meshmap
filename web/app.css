@@ -236,6 +236,11 @@ footer {
   font-size: 11px;
   color: var(--muted);
 }
+footer #cursor-coordinates {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
 footer #credit {
   margin-left: auto;
 }

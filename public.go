@@ -56,7 +56,7 @@ func publicSnapshot(c Config, nodes []Row, stats, vers Row, origin string) Row {
 		p["lqm_clock"] = selectFields(info, "now start")
 		publicNodes = append(publicNodes, p)
 	}
-	return Row{"schema_version": 1, "generated_at": time.Now().UTC().Format(time.RFC3339), "mapInfo": Row{"title": c.s("pageTitle"), "localnode": origin, "attribution": c.s("attribution"), "kilometers": c.b("kilometers"), "mapCenterCoords": []any{num(c.Arrays["map_center_coordinates"]["lat"]), num(c.Arrays["map_center_coordinates"]["lon"])}, "mapInitialZoom": num(c.s("map_initial_zoom_level")), "mapTileServers": c.Arrays["mapTileServers"]}, "pollingInfo": stats, "arednVersions": vers, "nodes": publicNodes}
+	return Row{"schema_version": 1, "generated_at": time.Now().UTC().Format(time.RFC3339), "mapInfo": Row{"version": version, "title": c.s("pageTitle"), "localnode": origin, "attribution": c.s("attribution"), "kilometers": c.b("kilometers"), "mapCenterCoords": []any{num(c.Arrays["map_center_coordinates"]["lat"]), num(c.Arrays["map_center_coordinates"]["lon"])}, "mapInitialZoom": num(c.s("map_initial_zoom_level")), "mapTileServers": c.Arrays["mapTileServers"]}, "pollingInfo": stats, "arednVersions": vers, "nodes": publicNodes}
 }
 func writePublicSnapshot(c Config, nodes []Row, stats, vers Row, origin string) error {
 	return jsonWrite(filepath.Join(c.Output, "public_map.json"), publicSnapshot(c, nodes, stats, vers, origin))

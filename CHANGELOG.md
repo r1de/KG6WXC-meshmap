@@ -1,3 +1,19 @@
+# Web Page Changes (3.1.2)
+Show program version on the bottom right of the web page.  
+  
+Removed "Refresh Data" button since it didn't really do anything, it could return if it becomes useful again.  
+It was mostly used when forcing a new data file to a remote "-serve-only" host.  
+The page should auto refresh now when a new file is available.  
+  
+Added mouse pointer current co-ordinates in the page footer.  
+The co-ords only display when the cursor is over the map.  
+There could possibly be a right-click menu to copy the mouse co-ordinates, but not sure about implementing that yet.  
+  
+Fixed manual co-ordinate entry in the URL  
+
+# Added Windows and Mac Binaries (3.1.1)
+Added Windows and Mac Binaries  
+
 # Clean up node popups (3.0.5)
 Removed null values from the node informational popups.  
 The values are still in the Database, they just do not clutter the map view any longer.  

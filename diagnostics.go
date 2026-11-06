@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-const version = "MeshMap 3.1.1"
+const version = "3.1.2"
 
 // rotatingLog writes immediately (no userspace buffer) and serializes writers
 // from polling workers, HTTP handlers and the heartbeat goroutine.

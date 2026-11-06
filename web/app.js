@@ -33,8 +33,24 @@ const map = L.map("map", { preferCanvas: true }).setView([34.35, -119.6], 9),
   stationLayer = L.layerGroup().addTo(map),
   linkLayer = L.layerGroup().addTo(map);
 
+//Cursor Coordinates
+const cursorCoordinates = $("cursor-coordinates");
+  
+  map.on("mousemove", (e) => {
+    const position = e.latlng.wrap();
+    
+    cursorCoordinates.textContent =
+    "Pointer Coordinates: Lat: " + position.lat.toFixed(5) +
+    " · Lon: " + position.lng.toFixed(5);
+  });
+  
+  map.getContainer().addEventListener("mouseleave", () => {
+    cursorCoordinates.textContent = "Pointer Coordinates: Lat: — · Lon: —";
+  });
+
   const nodePane = map.createPane("nodeMarkers");
   nodePane.style.zIndex = "450";
+
 //
 // L.control.scale().addTo(map);
 //
@@ -636,7 +652,7 @@ async function refresh() {
     document.title = data.mapInfo.title || "KG6WXC MeshMap";
     $("title").textContent = document.title;
     $("credit").textContent =
-      (data.mapInfo.attribution || "KG6WXC MeshMap") + " · Go";
+      (data.mapInfo.attribution || "KG6WXC MeshMap") + " · " + data.mapInfo.version + " · Go";
     $("timestamp").textContent =
       "Last completed poll: " +
       utc(data.pollingInfo.lastPollingRun) +
@@ -925,7 +941,8 @@ $("next").addEventListener("click", () => {
   renderReport();
 });
 $("download").addEventListener("click", downloadCSV);
-$("refresh").addEventListener("click", refresh);
+//JS part of the "Refresh Data" button
+//$("refresh").addEventListener("click", refresh);
 map.on("moveend", () => {
   if (initialized) {
     const p = map.getCenter();
@@ -934,6 +951,11 @@ map.on("moveend", () => {
       "",
       "#" + map.getZoom() + "/" + p.lat.toFixed(5) + "/" + p.lng.toFixed(5),
     );
+  }
+});
+window.addEventListener("hashchange", () => {
+  if (initialized) {
+    restoreView(data.mapInfo);
   }
 });
 if (matchMedia("(max-width:720px)").matches)
