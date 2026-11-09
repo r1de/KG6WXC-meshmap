@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-const version = "3.1.2"
+const version = "3.1.3.1"
 
 // rotatingLog writes immediately (no userspace buffer) and serializes writers
 // from polling workers, HTTP handlers and the heartbeat goroutine.
