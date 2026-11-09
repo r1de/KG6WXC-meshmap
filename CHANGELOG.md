@@ -1,4 +1,4 @@
-# More Changes to Web Interface (3.1.2)
+# More Changes to Web Interface (3.1.3)
 Added current polling indication. Only show status on the actual "live" polling device (serve mode).
 A "serve-only" device will show that it is "serve-only" and will not show any indication of the current polling status.
 
