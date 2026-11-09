@@ -60,7 +60,9 @@ func (s *snapshotCache) reload(path string) error {
 	s.Current.Store(&webSnapshot{b, fmt.Sprintf("\"%x\"", sum)})
 	return nil
 }
-func webHandler(cache *snapshotCache) http.Handler {
+// Polling status indicator
+//func webHandler(cache *snapshotCache) http.Handler {
+func webHandler(cache *snapshotCache, d *diagnostics, pollingEnabled bool) http.Handler {
 	assets, _ := fs.Sub(embeddedWeb, "web")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -75,6 +77,45 @@ func webHandler(cache *snapshotCache) http.Handler {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
+		//Polling Status Indicator
+		if r.URL.Path == "/api/status" {
+			status := Row{"state": "serve-only"}
+			
+			if pollingEnabled {
+				status["state"] = "waiting"
+				
+				if d == nil {
+					status["state"] = "unknown"
+				} else if active := d.active.Load(); active != nil {
+					status["state"] = "polling"
+					status["completed"] = active.completed.Load()
+					status["targets"] = active.targets.Load()
+					status["elapsed_seconds"] = int(time.Since(active.started).Seconds())
+					
+					if phase := active.phase.Load(); phase != nil {
+						status["phase"] = phase.name
+					}
+				} else {
+					next := d.nextScheduled.Load()
+					if manual := d.nextManual.Load(); manual != nil &&
+						(next == nil || manual.Before(*next)) {
+							next = manual
+						}
+						if next != nil {
+							status["next_poll_in_seconds"] = max(0, time.Until(*next).Seconds())
+						}
+				}
+			}
+			
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.Header().Set("Cache-Control", "no-store")
+			
+			if r.Method == http.MethodGet {
+				json.NewEncoder(w).Encode(status)
+			}
+			return
+		}
+		
 		if r.URL.Path == "/api/map" {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.Header().Set("Cache-Control", "no-cache")
@@ -154,7 +195,7 @@ func runWeb(parent context.Context, c Config, options webOptions, poller func(co
 	if e = cache.reload(snapshotPath); e != nil && !os.IsNotExist(e) {
 		diagnosticEvent(ctx, slog.LevelWarn, "no readable public snapshot", "error", e)
 	}
-	srv := &http.Server{Handler: webHandler(cache), ErrorLog: httpDiagnosticLogger(ctx), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 * 1024, TLSConfig: tlsConfig}
+	srv := &http.Server{Handler: webHandler(cache, diagnosticFrom(ctx), poller != nil), ErrorLog: httpDiagnosticLogger(ctx), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 * 1024, TLSConfig: tlsConfig}
 	done := make(chan error, 1)
 	go func() {
 		if tlsConfig != nil {
@@ -174,6 +215,7 @@ func runWeb(parent context.Context, c Config, options webOptions, poller func(co
 		if poller == nil {
 			return
 		}
+/*
 		for {
 			if e := poller(ctx); e != nil {
 				if ctx.Err() != nil {
@@ -192,6 +234,62 @@ func runWeb(parent context.Context, c Config, options webOptions, poller func(co
 			case <-timer.C:
 			}
 		}
+*/
+/*
+		schedulePath := filepath.Join(c.Logs, "poll-schedule.json")
+		var lastFinished time.Time
+
+		if b, err := os.ReadFile(schedulePath); err == nil {
+			if err := json.Unmarshal(b, &lastFinished); err != nil {
+				lastFinished = time.Time{}
+				diagnosticEvent(ctx, slog.LevelWarn, "invalid polling schedule", "error", err)
+			}
+		} else if !os.IsNotExist(err) {
+			diagnosticEvent(ctx, slog.LevelWarn, "cannot read polling schedule", "error", err)
+		}
+
+		for ctx.Err() == nil {
+			if !lastFinished.IsZero() {
+				nextPoll := lastFinished.Add(options.Interval)
+				if delay := time.Until(nextPoll); delay > 0 {
+					diagnosticEvent(ctx, slog.LevelInfo, "next poll scheduled",
+						"delay", delay, "next_poll", nextPoll)
+			
+					timer := time.NewTimer(delay)
+					select {
+					case <-ctx.Done():
+						timer.Stop()
+						return
+					case <-timer.C:
+					}
+				}
+			}
+			if ctx.Err() != nil {
+				return
+			}
+	
+			err := poller(ctx)
+			if ctx.Err() != nil {
+				return
+			}
+	
+			if err != nil {
+				diagnosticEvent(ctx, slog.LevelError, "polling failed; scheduler will retry",
+					"error", err, "retry_in", options.Interval)
+			} else if err := cache.reload(snapshotPath); err != nil {
+				diagnosticEvent(ctx, slog.LevelWarn, "snapshot reload failed", "error", err)
+			}
+	
+			lastFinished = time.Now()
+			if err := jsonWrite(schedulePath, lastFinished.UTC()); err != nil {
+				diagnosticEvent(ctx, slog.LevelWarn, "cannot save polling schedule", "error", err)
+			}
+		}
+	}()
+*/
+		runPollScheduler(ctx, c.Logs, options.Interval, poller, func() error {
+			return cache.reload(snapshotPath)
+		})
 	}()
 	// Serve-only also follows snapshots published by a separate scheduled poller.
 	go func() {

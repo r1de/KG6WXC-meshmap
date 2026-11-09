@@ -1,3 +1,14 @@
+# More Changes to Web Interface (3.1.2)
+Added current polling indication. Only show status on the actual "live" polling device (serve mode).
+A "serve-only" device will show that it is "serve-only" and will not show any indication of the current polling status.
+
+There is now the ability to force a polling run independently of the configured schedule.
+Run the meshmap program again, as the same user it runs as but give the option of `--poll-now` of `--poll-in 10m`
+The `--poll-in X` option accepts time frames of 1 minute to 10 minutes, values like `90s` work, as does `5m` or `233s`, it just has to be with 1-10 minutes.
+Once the manual run is scheduled it takes precedent over the scheduled run, unless it is after the scheduled run.
+The "Earliest Next Run" take precendent.
+The new polling indicator will update to show the time until next run.
+
 # Web Page Changes (3.1.2)
 Show program version on the bottom right of the web page.  
   

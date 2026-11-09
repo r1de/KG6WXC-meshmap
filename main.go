@@ -51,7 +51,52 @@ func run() (runErr error) {
 	cert := flag.String("tls-cert", "", "HTTPS certificate PEM file")
 	key := flag.String("tls-key", "", "HTTPS private key PEM file")
 	showVersion := flag.Bool("version", false, "print executable version")
+/*	flag.Parse() */
+
+	pollNow := flag.Bool("poll-now", false, "request an immediate poll from the running service")
+	pollIn := flag.Duration("poll-in", 0, "request a poll in 1m to 10m")
 	flag.Parse()
+
+	pollInSet := false
+	incompatibleFlag := ""
+	flag.Visit(func(f *flag.Flag) {
+		switch f.Name {
+			case "poll-in":
+				pollInSet = true
+			case "poll-now", "config":
+			default:
+				incompatibleFlag = f.Name
+		}
+	})
+
+	if *pollNow || pollInSet {
+		if *pollNow && pollInSet {
+			return fmt.Errorf("choose either --poll-now or --poll-in")
+		}
+		if pollInSet && (*pollIn < time.Minute || *pollIn > 10*time.Minute) {
+			return fmt.Errorf("--poll-in must be between 1m and 10m")
+		}
+		if incompatibleFlag != "" {
+			return fmt.Errorf("cannot combine a poll request with --%s", incompatibleFlag)
+		}
+		if flag.NArg() != 0 {
+			return fmt.Errorf("unexpected arguments")
+		}
+		
+		c, err := loadConfigOverrides(*config, 0, nil)
+		if err != nil {
+			return fmt.Errorf("load settings for poll request: %w", err)
+		}
+		
+		due := time.Now().Add(*pollIn)
+		if err := queuePollRequest(c.Logs, due); err != nil {
+			return fmt.Errorf("queue poll request: %w", err)
+		}
+		fmt.Printf("Poll queued for %s\n", due.Format(time.RFC3339))
+		return nil
+	}
+
+/* */
 	if *showVersion {
 		fmt.Println(version)
 		return nil

@@ -533,3 +533,52 @@ td button {
 #xlinkLegend {
   color: #00aaaa;
 }
+
+/* Polling Idicator */
+
+#poll-status {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+white-space: nowrap;
+color: #b77900;
+}
+
+.poll-indicator {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+#poll-status[data-state="waiting"] {
+color: #22863a;
+}
+
+#poll-status[data-state="serve-only"] {
+color: var(--muted);
+}
+
+#poll-status[data-state="polling"] {
+color: #287bc6;
+}
+
+#poll-status[data-state="polling"] .poll-indicator {
+background: transparent;
+border: 2px solid currentColor;
+border-right-color: transparent;
+animation: poll-spin 0.8s linear infinite;
+}
+
+@keyframes poll-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #poll-status[data-state="polling"] .poll-indicator {
+  animation: none;
+  }
+}

@@ -206,6 +206,8 @@ type diagnostics struct {
 	debug     bool
 	started   time.Time
 	active    atomic.Pointer[pollTrace]
+	nextScheduled atomic.Pointer[time.Time]
+	nextManual atomic.Pointer[time.Time]
 	cycles    atomic.Uint64
 	debugFile *rotatingLog
 }

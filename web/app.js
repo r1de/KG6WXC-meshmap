@@ -960,5 +960,83 @@ window.addEventListener("hashchange", () => {
 });
 if (matchMedia("(max-width:720px)").matches)
   document.querySelector(".controls details").open = false;
+
+// Polling Indicator
+let checkingPollStatus = false;
+
+async function refreshPollStatus() {
+  if (checkingPollStatus) return;
+  checkingPollStatus = true;
+  
+  const indicator = $("poll-status");
+  const text = $("poll-status-text");
+  
+  try {
+    const response = await fetch("/api/status", {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    
+    if (!response.ok) throw new Error("Status unavailable");
+    
+    const status = await response.json();
+    const labels = {
+      polling: "Currently polling",
+      waiting: "Waiting for next poll",
+      "serve-only": "No Polling · Serve-only mode",
+    };
+    
+    indicator.dataset.state = labels[status.state]
+    ? status.state
+    : "unknown";
+    
+    text.textContent = labels[status.state] || "Status unavailable";
+    
+    if (
+      status.state === "waiting" &&
+      Number.isFinite(status.next_poll_in_seconds)
+    ) {
+      const totalMinutes = Math.ceil(status.next_poll_in_seconds / 60);
+      
+      if (totalMinutes === 0) {
+        text.textContent = "Next poll due";
+      } else {
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const remaining = [];
+        
+        if (hours > 0) remaining.push(`${hours}h`);
+        if (minutes > 0) remaining.push(`${minutes}m`);
+        
+        text.textContent = `Waiting for next poll in: ${remaining.join(" ")}`;
+      }
+    }
+    
+    if (
+      status.state === "polling" &&
+      status.phase === "node polling" &&
+      status.targets > 0
+    ) {
+      text.textContent +=
+      " · " + status.completed + "/" + status.targets;
+    }
+    
+    indicator.title =
+    status.state === "polling"
+    ? "Phase: " + (status.phase || "starting") +
+    " · Elapsed: " + (status.elapsed_seconds || 0) + " seconds"
+    : "";
+  } catch {
+    indicator.dataset.state = "unknown";
+    indicator.title = "Cannot obtain live polling status.";
+    text.textContent = "Status unavailable";
+  } finally {
+    checkingPollStatus = false;
+  }
+}
+
+refreshPollStatus();
+setInterval(refreshPollStatus, 5000);
+
 refresh();
 setInterval(refresh, 30000);
