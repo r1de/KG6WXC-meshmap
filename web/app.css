@@ -99,13 +99,23 @@ summary:focus-visible {
 .controls {
   position: absolute;
   top: 92px;
-  left: 55px;
+  left: 10px;
   z-index: 900;
   width: 242px;
-  padding: 12px;
-  max-height: calc(100vh - 290px);
+/*  padding: 12px; */
+  display: grid;
+  gap: 8px;
+/* */
+/*  max-height: calc(100vh - 290px); */
+  max-height: calc(100vh - 138px);
   overflow: auto;
 }
+/* */
+.controls > details {
+  padding: 12px;
+  background-color: rgb(0 0 0 / 80%);
+}
+/* */
 .controls summary {
   font-weight: 650;
   font-size: 14px;
@@ -163,9 +173,11 @@ input[type="checkbox"] {
   display: flex;
   gap: 6px;
   margin-top: 12px;
+  flex-wrap: wrap;
 }
 .actions button {
-  flex: 1;
+/*  flex: 1; */
+  flex: 1 0 auto;
   font-size: 12px;
 }
 .legend {
@@ -173,13 +185,14 @@ input[type="checkbox"] {
 /*  bottom: 64px; */
   bottom: auto;
   top: 92px;
-  right: 12px;
+  right: 10px;
 /*  left: 12px; */
   left: auto;
   z-index: 900;
   width: 260px;
   padding: 12px;
   font-size: 12px;
+  background-color: rgb(0 0 0 / 80%);
 }
 .legend strong {
   font-size: 13px;
@@ -443,7 +456,11 @@ td button {
     top: 110px;
     left: 49px;
     width: 205px;
-    max-height: 45vh;
+/*    max-height: 45vh; */
+    max-height: calc(100vh - 168px);
+/*    padding: 9px; */
+  }
+  .controls > details {
     padding: 9px;
   }
   .controls details:not([open]) {

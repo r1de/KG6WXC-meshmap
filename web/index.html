@@ -32,11 +32,21 @@
       <button id="reports">Node & link reports</button>
     </header>
     <main id="map" aria-label="AREDN network map"></main>
-    <section class="controls card" aria-label="Map controls">
-<!--      <details open> -->
-      <details>
-        <summary>Layers & Link Metrics</summary>
+
+    <section class="controls" aria-label="Map menus">
+      <details class="card">
+        <summary>Map Controls</summary>
         <label>Map tiles<select id="tiles"></select></label>
+        <div class="actions">
+          <button id="fit" type="button">Fit Network</button>
+          <button id="origin" type="button">Map Origin</button>
+          <button id="recenter" type="button">Re-Center</button>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>Node & Link Controls</summary>
+
         <fieldset>
           <legend>Stations</legend>
           <div id="bands"></div>
@@ -67,10 +77,11 @@
             <option value="100">100 Mbps</option>
           </select></label>
         
-        <div class="actions">
+<!--        <div class="actions">
           <button id="fit">Fit network</button
           ><button id="origin">Map origin</button>
         </div>
+-->
       </details>
     </section>
     <section class="legend card" aria-label="Link color legend">

@@ -32,6 +32,7 @@ const visibleBands = new Set(Object.keys(bands)),
 const map = L.map("map", { preferCanvas: true }).setView([34.35, -119.6], 9),
   stationLayer = L.layerGroup().addTo(map),
   linkLayer = L.layerGroup().addTo(map);
+  map.zoomControl.setPosition("bottomright");
 
 //Cursor Coordinates
 const cursorCoordinates = $("cursor-coordinates");
@@ -600,9 +601,10 @@ function chooseTiles() {
   baseLayer = L.tileLayer(url, { maxZoom: 19, attribution }).addTo(map);
   baseLayer.bringToBack();
 }
-function restoreView(info) {
+function restoreView(info, useURL = true) {
   const parts = location.hash.replace(/^#/, "").split("/").map(Number);
   if (
+    useURL &&
     parts.length === 3 &&
     parts.every(Number.isFinite) &&
     parts[0] >= 0 &&
@@ -617,8 +619,9 @@ function restoreView(info) {
       Array.isArray(coords) &&
       coords.length === 2 &&
       coords.every((v) => M.number(v) !== null)
-    )
-      map.setView(coords, Number(info.mapInitialZoom) || 9);
+    ) {
+      map.setView(coords, M.number(info.mapInitialZoom) ?? 9);
+    }
   }
 }
 async function refresh() {
@@ -645,9 +648,13 @@ async function refresh() {
     const metric = distanceUnit() === "km";
     
     distanceScale = L.control.scale({
+      position: "bottomright",
       metric: metric,
       imperial: !metric,
     }).addTo(map);
+    
+    map.zoomControl.addTo(map);
+    
     etag = response.headers.get("ETag") || "";
     document.title = data.mapInfo.title || "KG6WXC MeshMap";
     $("title").textContent = document.title;
@@ -909,6 +916,9 @@ $("metric").addEventListener("change", () =>
 $("scale").addEventListener("change", () => data && renderMap());
 $("tiles").addEventListener("change", chooseTiles);
 $("fit").addEventListener("click", fitNetwork);
+$("recenter").addEventListener("click", () => {
+  if (data?.mapInfo) restoreView(data.mapInfo, false);
+});
 $("origin").addEventListener("click", () => {
   const n = data?.nodes.find((n) => n.node === data.mapInfo.localnode);
   if (n) openNode(n);
@@ -971,10 +981,14 @@ async function refreshPollStatus() {
   const indicator = $("poll-status");
   const text = $("poll-status-text");
   
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000);
+  
   try {
     const response = await fetch("/api/status", {
       cache: "no-store",
-      signal: AbortSignal.timeout(4000),
+//      signal: AbortSignal.timeout(4000),
+      signal: controller.signal,
     });
     
     if (!response.ok) throw new Error("Status unavailable");
@@ -1031,6 +1045,7 @@ async function refreshPollStatus() {
     indicator.title = "Cannot obtain live polling status.";
     text.textContent = "Status unavailable";
   } finally {
+    clearTimeout(timeout);
     checkingPollStatus = false;
   }
 }

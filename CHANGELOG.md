@@ -1,6 +1,14 @@
+# More UI Updates (3.1.4)
+moved zoom controls and map scale to bottom right.  
+Added `Map Controls` for Tiles, Re-Centering, Fit Network, etc.  
+Map, Link and legend controls now have 80% transparency.  
+
+# version display (3.1.3.1)
+Fixed my missed version change.
+
 # More Changes to Web Interface (3.1.3)
-Added current polling indication. Only show status on the actual "live" polling device (serve mode).
-A "serve-only" device will show that it is "serve-only" and will not show any indication of the current polling status.
+Added current polling indication. Only show status on the actual "live" polling device (serve mode).  
+A "serve-only" device will show that it is "serve-only" and will not show any indication of the current polling status.  
 
 There is now the ability to force a polling run independently of the configured schedule.
 Run the meshmap program again, as the same user it runs as but give the option of `--poll-now` of `--poll-in 10m`
