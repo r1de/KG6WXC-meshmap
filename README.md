@@ -11,23 +11,29 @@
 [![MattermostChat](https://img.shields.io/badge/Chat-Mattermost-blueviolet.svg)](https://mattermost.kg6wxc.net/mesh/channels/meshmap)
 
 KG6WXC's updated MeshMap.  
+  
 ChatGPT Codex helped a lot with this effort.  
-I appreciate everyones support over the years!  
+(Yeah, Yeah, give me crap all you want for using Codex, I have a 100 other things I _should_ be doing.)  
+
+I do really appreciate everyones support over the years! Seriously!  
 (And some for encouraging me to update this old program)  
-This still beta, but works well enough for wider testing.
+
+This still pretty much beta, but works well enough for wider testing.
 
 ## New:
 One executable for polling, SQLite storage, and the KG6WXC MeshMap webpage.  
 SQLite is embedded and is the default: no PHP, C compiler, or database server is needed.  
 MariaDB/MySQL remains available, but has yet to be fully tested at this point.  
 No separate web server or webpage installation is required.  
-A reverse proxy is recommended for internet access.  
-The map, scripts, and Leaflet are embedded.
+Although there is an embedded Go HTTP/S server, a reverse proxy is recommended, especially for internet access.  
+The map, scripts, and Leaflet are also embedded and are updated during the build.
 
 ### Hopefull Changes (AKA [ToDo] List)
-    - [ ] Test MariaDB
+    - [ ] Test MariaDB :facepalm:
     - [ ] User abilty to change styling, logo for the map
-    - [ ] Others (Never!)
+    - [ ] The Ruler
+    - [ ] Elevation Plots
+    - [ ] LOS calculator (probably wishful thinking. :crossed_fingers: )
 
 ## Install as a service on Linux
 
@@ -98,9 +104,11 @@ Then edit `settings/user-settings.ini`, then run `meshmap-windows-amd64.exe --se
 In PowerShell, prefix the executable name with `.\`.  
 Windows runs as a console program; the supplied systemd service is for Linux.  
 Optional SSH uploads require `ssh` and `scp` to be installed and available on `PATH`.  
+(Or just install Linux on an old Laptop and follow the the Linux instructions!)  
 
 ## MAC
-#### Basically the same as linux, but you will have to find your way through the garden yourself.
+Basically the same as linux, but you will have to find your way through the garden yourself.  
+I have no MAC system to test on and I don't intend to try and make one. Your kinda on your own. Sorry.
 
 ## Build from source
 
