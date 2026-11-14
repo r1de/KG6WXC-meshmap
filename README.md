@@ -37,10 +37,12 @@ The map, scripts, and Leaflet are also embedded and are updated during the build
 ## Install as a service on Linux
 
 1. Download the binary [release](https://github.com/r1de/KG6WXC-meshmap/releases) file for your system
-    - [🐧 Linux x64](linux)
-    - [🍓](pi)
+    - [🐧 Linux x64](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-linux-amd64.tar.gz)
+    - [🍓 arm64](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-linux-amd64.tar.gz)
+    - [🍓 32bit/](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-linux-armv7.tar.gz)
     - [🪟 Windows x64](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-windows-amd64.zip)
-    - [🍏](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-macos-arm64.tar.gz)
+    - [🍏 Apple Silicon](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-macos-arm64.tar.gz)
+    - [🍏 Apple Intel](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-macos-amd64.tar.gz)
   
 2. Decompress the files into a directory called `meshmap`
     ```bash
