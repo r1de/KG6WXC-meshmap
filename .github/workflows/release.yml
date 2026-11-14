@@ -49,23 +49,23 @@ jobs:
         run: |
           mkdir -p release
           for arch in amd64 arm64 armv7; do
-            tar -czf "release/meshmap-${GITHUB_REF_NAME}-linux-${arch}.tar.gz" \
+            tar -czf "release/meshmap-linux-${arch}.tar.gz" \
               -C dist "meshmap-linux-${arch}" \
               -C "$GITHUB_WORKSPACE" \
               deploy/meshmap.service README.md CHANGELOG.md DIAGNOSTICS.md \
               LICENSE THIRD_PARTY_LICENSES schema.sql
           done
           for arch in amd64 arm64; do
-            tar -czf "release/meshmap-${GITHUB_REF_NAME}-macos-${arch}.tar.gz" \
+            tar -czf "release/meshmap-macos-${arch}.tar.gz" \
               -C dist "meshmap-macos-${arch}" \
               -C "$GITHUB_WORKSPACE" \
               README.md CHANGELOG.md DIAGNOSTICS.md \
               LICENSE THIRD_PARTY_LICENSES schema.sql
           done
-          zip -q -j "release/meshmap-${GITHUB_REF_NAME}-windows-amd64.zip" \
+          zip -q -j "release/meshmap-windows-amd64.zip" \
             dist/meshmap-windows-amd64.exe \
             README.md CHANGELOG.md DIAGNOSTICS.md LICENSE schema.sql
-          zip -q -r "release/meshmap-${GITHUB_REF_NAME}-windows-amd64.zip" \
+          zip -q -r "release/meshmap-windows-amd64.zip" \
             THIRD_PARTY_LICENSES
 
       - name: Publish GitHub release

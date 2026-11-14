@@ -6,7 +6,13 @@
     sans-serif;
   color: #172b35;
   background: #e8eceb;
+  color-scheme: light;
   --panel: #fffffff2;
+  --map-panel: rgb(255 255 255 / 80%);
+  --map-panel-muted: #374b55;
+  --tun-label: #1744a5;
+  --dtd-label: #722085;
+  --xlink-label: #005d61;
   --border: #cbd5d9;
   --muted: #536773;
   --accent: #176477;
@@ -30,6 +36,20 @@ header {
 }
 header img {
   object-fit: contain;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: inherit;
+}
+#theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
 }
 h1 {
   font-size: 21px;
@@ -113,7 +133,11 @@ summary:focus-visible {
 /* */
 .controls > details {
   padding: 12px;
-  background-color: rgb(0 0 0 / 80%);
+}
+.controls > details,
+.legend {
+  background-color: var(--map-panel);
+  --muted: var(--map-panel-muted);
 }
 /* */
 .controls summary {
@@ -192,7 +216,6 @@ input[type="checkbox"] {
   width: 260px;
   padding: 12px;
   font-size: 12px;
-  background-color: rgb(0 0 0 / 80%);
 }
 .legend strong {
   font-size: 13px;
@@ -494,61 +517,66 @@ td button {
     width: 170px;
   }
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --panel: #18272ff2;
-    --border: #43545d;
-    --muted: #adbec8;
-    color: #e4edef;
-    background: #19282c;
-  }
-  header,
-  footer,
-  dialog,
-  input,
-  select,
-  button {
-    background: #192a32;
-    color: #e4edef;
-  }
-  button:hover {
-    background: #29434d;
-  }
-  th {
-    background: #243c46;
-  }
-  td,
-  th {
-    border-color: #43545d;
-  }
-  tbody tr:hover {
-    background: #243c46;
-  }
-  .leaflet-popup-content-wrapper,
-  .leaflet-popup-tip {
-    background: #192a32;
-    color: #e4edef;
-  }
-  a,
-  .detail-link,
-  td button {
-    color: #80cede;
-  }
-  .leaflet-control-attribution {
-    color: #293d46;
-  }
-  #map {
-    background: #283c42;
-  }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --panel: #18272ff2;
+  --map-panel: rgb(24 39 47 / 80%);
+  --map-panel-muted: #adbec8;
+  --border: #43545d;
+  --muted: #adbec8;
+  --tun-label: #a4c2ff;
+  --dtd-label: #e0adf3;
+  --xlink-label: #77e5e5;
+  color: #e4edef;
+  background: #19282c;
 }
-#tunLegend {
-  color: #3366cc;
+[data-theme="dark"] header,
+[data-theme="dark"] footer,
+[data-theme="dark"] dialog,
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] button {
+  background: #192a32;
+  color: #e4edef;
 }
-#dtdLegend {
-  color: #9933cc;
+[data-theme="dark"] button:hover {
+  background: #29434d;
 }
-#xlinkLegend {
-  color: #00aaaa;
+[data-theme="dark"] th,
+[data-theme="dark"] tbody tr:hover {
+  background: #243c46;
+}
+[data-theme="dark"] td,
+[data-theme="dark"] th {
+  border-color: #43545d;
+}
+[data-theme="dark"] .leaflet-popup-content-wrapper,
+[data-theme="dark"] .leaflet-popup-tip {
+  background: #192a32;
+  color: #e4edef;
+}
+[data-theme="dark"] a,
+[data-theme="dark"] .detail-link,
+[data-theme="dark"] td button {
+  color: #80cede;
+}
+[data-theme="dark"] .leaflet-control-attribution {
+  color: #293d46;
+}
+[data-theme="dark"] #map {
+  background: #283c42;
+}
+#tunLegend,
+.link-type-tun {
+  color: var(--tun-label);
+}
+#dtdLegend,
+.link-type-dtd {
+  color: var(--dtd-label);
+}
+#xlinkLegend,
+.link-type-xlink {
+  color: var(--xlink-label);
 }
 
 /* Polling Idicator */

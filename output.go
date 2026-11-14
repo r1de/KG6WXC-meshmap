@@ -140,6 +140,9 @@ func numeric(v any) any {
 	return v
 }
 func generate(c Config, nodes []Row, stats, vers Row, origin string, errs, noloc []Row) error {
+	//trying to get rid of dupes
+	origin = canonicalName(origin)
+	
 	if e := os.MkdirAll(c.Output, 0755); e != nil {
 		return e
 	}

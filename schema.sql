@@ -61,7 +61,9 @@ DROP TABLE IF EXISTS `node_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `node_info` (
-  `node` varchar(70) DEFAULT NULL,
+  /* trying to get rid of dupes */
+  /* `node` varchar(70) DEFAULT NULL, */
+  `node` varchar(70) NOT NULL,
   `wlan_ip` varchar(50) DEFAULT NULL,
   `last_seen` datetime DEFAULT NULL,
   `uptime` varchar(50) DEFAULT NULL,
@@ -99,7 +101,12 @@ CREATE TABLE `node_info` (
   `freq` varchar(100) DEFAULT NULL,
   `mesh_gateway` varchar(100) DEFAULT NULL,
   `mesh_supernode` varchar(100) DEFAULT NULL,
-  UNIQUE KEY `node_info_UN` (`wlan_ip`)
+
+  /*trying to get rid of dupes */
+  /*UNIQUE KEY `node_info_UN` (`wlan_ip`) */
+  UNIQUE KEY `node_info_UN` (`node`),
+  KEY `node_info_wlan_ip_idx` (`wlan_ip`)
+  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -4,6 +4,45 @@
 "use strict";
 const M = MeshMetrics,
   $ = (id) => document.getElementById(id);
+
+const systemTheme = matchMedia("(prefers-color-scheme: dark)");
+const themeToggle = $("theme-toggle");
+const themeStorageKey = "meshmap-theme";
+let themePreference;
+try {
+  const savedTheme = localStorage.getItem(themeStorageKey);
+  if (savedTheme === "light" || savedTheme === "dark") {
+    themePreference = savedTheme;
+  }
+} catch {
+  // The browser can disable site storage.
+}
+
+function applyTheme() {
+  const theme = themePreference || (systemTheme.matches ? "dark" : "light");
+  const nextTheme = theme === "dark" ? "light" : "dark";
+  const label = "Switch to " + nextTheme + " mode";
+
+  document.documentElement.dataset.theme = theme;
+  themeToggle.firstElementChild.textContent = theme === "dark" ? "☀︎" : "☾";
+  themeToggle.setAttribute("aria-label", label);
+  themeToggle.title = label;
+}
+
+applyTheme();
+themeToggle.addEventListener("click", () => {
+  themePreference = document.documentElement.dataset.theme === "dark"
+    ? "light"
+    : "dark";
+  applyTheme();
+  try {
+    localStorage.setItem(themeStorageKey, themePreference);
+  } catch {
+    // The current tab can still switch themes.
+  }
+});
+systemTheme.addEventListener?.("change", applyTheme);
+
 const bands = {
   900: ["900 MHz", "#b82ba7"],
   "2ghz": ["2.4 GHz", "#8045be"],
@@ -579,6 +618,7 @@ function chooseTiles() {
     map.removeLayer(baseLayer);
     baseLayer = null;
   }
+  /*
   if (url.startsWith("//")) url = location.protocol + url;
   url = url.replace(
     /^https?:\/\/(?:\{s\}\.|[abc]\.)?tile\.openstreetmap\.org\//,
@@ -587,6 +627,7 @@ function chooseTiles() {
   if (!/^https?:\/\//i.test(url) && !url.startsWith("/")) return;
   if (location.protocol === "https:" && url.startsWith("http:"))
     url = "https:" + url.slice(5);
+  */
   let attribution =
     "Map tiles: " +
     $("tiles").selectedOptions[0].textContent.replace(/[<>&"']/g, "");
@@ -682,7 +723,7 @@ async function refresh() {
     $("notice").hidden = data.nodes.length > 0;
     if (!data.nodes.length)
       $("notice").textContent =
-        "The snapshot has no successfully polled nodes yet.";
+        "The snapshot has not successfully polled nodes yet.";
     if ($("report-dialog").open) renderReport();
   } catch (error) {
     $("notice").textContent = error.message;
@@ -904,7 +945,7 @@ for (const [id, choices, set] of [
 //    label.append(el("span", name));
     const text = el("span", name);
     if (id === "types" && linkColors[key]) {
-      text.style.color = linkColors[key];
+      text.classList.add("link-type-" + key.toLowerCase());
     }
     label.append(text);
     $(id).append(label);

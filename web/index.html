@@ -29,7 +29,12 @@
           placeholder="Find a node…"
           autocomplete="off" /><datalist id="node-options"></datalist></label>
       <button id="find">Find</button>
-      <button id="reports">Node & link reports</button>
+      <div class="header-actions">
+        <button id="reports">Node & link reports</button>
+        <button id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode">
+          <span aria-hidden="true">☾</span>
+        </button>
+      </div>
     </header>
     <main id="map" aria-label="AREDN network map"></main>
 

@@ -18,7 +18,6 @@ ChatGPT Codex helped a lot with this effort.
 I do really appreciate everyones support over the years! Seriously!  
 (And some for encouraging me to update this old program)  
 
-This still pretty much beta, but works well enough for wider testing.
 
 ## New:
 One executable for polling, SQLite storage, and the KG6WXC MeshMap webpage.  
@@ -29,15 +28,19 @@ Although there is an embedded Go HTTP/S server, a reverse proxy is recommended, 
 The map, scripts, and Leaflet are also embedded and are updated during the build.
 
 ### Hopefull Changes (AKA [ToDo] List)
-    - [ ] Test MariaDB :facepalm:
+    - [ ] Test MariaDB 🤦‍♂️
     - [ ] User abilty to change styling, logo for the map
-    - [ ] The Ruler
-    - [ ] Elevation Plots
-    - [ ] LOS calculator (probably wishful thinking. :crossed_fingers: )
+    - [ ] The Ruler 📏
+    - [ ] Elevation Plots 📉
+    - [ ] LOS calculator (probably wishful thinking. 🤞)
 
 ## Install as a service on Linux
 
 1. Download the binary [release](https://github.com/r1de/KG6WXC-meshmap/releases) file for your system
+    - [🐧 Linux x64](linux)
+    - [🍓](pi)
+    - [🪟 Windows x64](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-windows-amd64.zip)
+    - [🍏](https://github.com/r1de/KG6WXC-meshmap/releases/latest/download/meshmap-macos-arm64.tar.gz)
   
 2. Decompress the files into a directory called `meshmap`
     ```bash

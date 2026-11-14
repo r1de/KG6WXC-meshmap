@@ -109,6 +109,12 @@ func (s *Store) load(ctx context.Context) ([]Row, error) {
 	return out, rows.Err()
 }
 func (s *Store) upsert(ctx context.Context, tx *sql.Tx, table string, r Row, seen bool) error {
+	//trying to get rid of dupes
+	key := "id"
+	if table == s.Table {
+		key = "node"
+	}
+	
 	keys := []string{}
 	for k := range r {
 		keys = append(keys, k)
@@ -119,7 +125,11 @@ func (s *Store) upsert(ctx context.Context, tx *sql.Tx, table string, r Row, see
 	for _, k := range keys {
 		columns = append(columns, "`"+k+"`")
 		marks = append(marks, "?")
-		if k != "wlan_ip" && k != "id" {
+		
+		//trying to get rid of dupes
+		//if k != "wlan_ip" && k != "id" {
+		if k != key {
+			
 			updates = append(updates, "`"+k+"`=VALUES(`"+k+"`)")
 		}
 		v := r[k]
@@ -148,10 +158,13 @@ func (s *Store) upsert(ctx context.Context, tx *sql.Tx, table string, r Row, see
 	}
 	suffix := " ON DUPLICATE KEY UPDATE " + strings.Join(updates, ",")
 	if s.Driver == "sqlite" {
-		key := "id"
-		if table == s.Table {
-			key = "wlan_ip"
-		}
+		
+		//trying to get rid of dupes
+		//key := "id"
+		//if table == s.Table {
+			//key = "wlan_ip"
+		//}
+		
 		for i, u := range updates {
 			updates[i] = regexpValues.ReplaceAllString(u, "excluded.$1")
 		}
@@ -174,6 +187,9 @@ func (s *Store) savePoll(ctx context.Context, c Config, targets []Target, result
 	if _, e = tx.ExecContext(ctx, "UPDATE `"+s.Table+"` SET link_info=?", php(Row{})); e != nil {
 		return e
 	}
+	
+	//trying to get rid of dupes
+	/*
 	for _, t := range targets {
 		if e = s.upsert(ctx, tx, s.Table, Row{"wlan_ip": t.IP, "hopsAway": t.Hops, "link_info": t.Links}, false); e != nil {
 			return e
@@ -186,6 +202,24 @@ func (s *Store) savePoll(ctx context.Context, c Config, targets []Target, result
 			}
 		}
 	}
+	*/
+	for _, t := range targets {
+		if _, e = tx.ExecContext(ctx,
+			"UPDATE `"+s.Table+"` SET hopsAway=?, link_info=? WHERE wlan_ip=?",
+			t.Hops, php(t.Links), t.IP,);
+		e != nil {
+			return e
+		}
+	}
+	
+	for _, r := range results {
+		if r.Err == nil && nonempty(r.Node["node"]) {
+			if e = s.upsert(ctx, tx, s.Table, r.Node, true); e != nil {
+				return e
+			}
+		}
+	}
+	
 	return tx.Commit()
 }
 func (s *Store) saveMeta(ctx context.Context, nodes []Row, stats, versions Row) error {
@@ -194,11 +228,22 @@ func (s *Store) saveMeta(ctx context.Context, nodes []Row, stats, versions Row) 
 		return e
 	}
 	defer tx.Rollback()
-	for _, n := range nodes {
+	
+	//trying to get rid of dupes
+	/*for _, n := range nodes {
 		if _, e = tx.ExecContext(ctx, "UPDATE `"+s.Table+"` SET link_info=? WHERE wlan_ip=?", php(n["link_info"]), n["wlan_ip"]); e != nil {
 			return e
 		}
+	} */
+	for _, n := range nodes {
+		if _, e = tx.ExecContext(ctx,
+			"UPDATE `"+s.Table+"` SET link_info=? WHERE node=?",
+			php(n["link_info"]), n["node"],
+		); e != nil {
+			return e
+		}
 	}
+	
 	r := Row{"id": "POLLINFO"}
 	for k, v := range stats {
 		r[k] = v
@@ -250,13 +295,27 @@ func (s *Store) initialize(ctx context.Context) error {
 		if k == "lat" || k == "lon" {
 			typ = "REAL"
 		}
-		if k == "wlan_ip" {
-			typ += " PRIMARY KEY"
+		
+		//trying to get rid of dupes
+		//if k == "wlan_ip" {
+			//typ += " PRIMARY KEY"
+		//}
+		if k == "node" {
+			typ += " PRIMARY KEY NOT NULL"
 		}
+		
 		columns = append(columns, "`"+k+"` "+typ)
 	}
 	sort.Strings(columns)
 	_, e := s.DB.ExecContext(ctx, "CREATE TABLE IF NOT EXISTS `"+s.Table+"` ("+strings.Join(columns, ",")+"); CREATE TABLE IF NOT EXISTS map_info (id TEXT PRIMARY KEY,lastPollingRun TEXT,pollingTimeSec REAL,nodeTotal INTEGER,garbageReturned INTEGER,highestHops INTEGER,totalPolled INTEGER,numParallelThreads INTEGER,noLocation INTEGER,mappableLinks INTEGER,mappableNodes INTEGER); CREATE TABLE IF NOT EXISTS aredn_info (id TEXT PRIMARY KEY,current_stable_version TEXT,current_nightly_version TEXT);")
+	
+	//trying to get rid of dupes
+	//return e
+	if e != nil {
+		return e
+	}
+	_, e = s.DB.ExecContext(ctx,
+				"CREATE INDEX IF NOT EXISTS `"+s.Table+"_wlan_ip_idx` ON `"+s.Table+"` (wlan_ip)")
 	return e
 }
 

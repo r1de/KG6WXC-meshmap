@@ -159,6 +159,9 @@ func parseNode(raw Row, ip string) Row {
 	for _, k := range []string{"lat", "lon"} {
 		r[k] = num(r[k])
 	}
+	//trying to get rid of duplicates!
+	r["node"] = canonicalName(str(r["node"]))
+	
 	attachTelemetry(r, raw)
 	return r
 }

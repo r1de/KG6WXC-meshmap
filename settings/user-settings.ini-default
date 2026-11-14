@@ -156,9 +156,9 @@ kilometers = false
 ;for the server you are using.
 ;"/{z}/{x}/{y}.png" is just an example but should work for most.
 ;--------------------------------------------------------------
-mapTileServers['Topographic'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-mapTileServers['Street-default'] = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-mapTileServers['Satellite'] = "//basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
+mapTileServers['Open Topo'] = "//{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+mapTileServers['OSM Street-default'] = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+mapTileServers['USGS Satellite'] = "//basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}"
 
 ;;*NOTE*
 ;Any any tile server with ".local.mesh" in it's URL will be used in place of the others
