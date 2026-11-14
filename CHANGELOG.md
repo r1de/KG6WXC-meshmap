@@ -4,6 +4,7 @@ Changed the name of the github release files so they are consistent
 Attempt to fix some weirdness in how map tile servers were displayed. 🤞  
 Stopped the duplicate node entries in the database. 🤞  
  - This requires a DB wipe and restart, Sorry.
+
 Fixed Light/Dark mode.  
 Cleaned up some typos (I am sure there are _many_ more.  
 
